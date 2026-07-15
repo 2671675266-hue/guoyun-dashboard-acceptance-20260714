@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="zh-CN"><head><meta name="robots" content="noindex, nofollow"><link rel="icon" href="./favicon.ico"><script id="__gySeed">window.__GY_SEED__={"gy_tgts_v1":"{\"202606\":{\"zibo\":350000,\"dabo\":520000,\"zy_shelf\":100000,\"dy_short\":50000},\"202607\":{\"zibo\":350000,\"dabo\":0,\"zy_shelf\":100000,\"dy_short\":60000}}"};window.__GY_SEED_VER__="manual_20260709_124745";</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="zh-CN"><head><meta name="robots" content="noindex, nofollow"><link rel="icon" href="./favicon.ico"><script id="__gySeed">window.__GY_SEED__={"gy_tgts_v1":"{\"202606\":{\"zibo\":350000,\"dabo\":520000,\"zy_shelf\":100000,\"dy_short\":50000},\"202607\":{\"zibo\":350000,\"dabo\":0,\"zy_shelf\":100000,\"dy_short\":60000}}","gy_imp_concl":"{}"};window.__GY_SEED_VER__="manual_20260709_124745";</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>国韵护肤 · 电商协同看板 · 数据导入版</title>
 <script>/* SheetJS */
 /*! xlsx.js (C) 2013-present SheetJS -- http://sheetjs.com */
@@ -222,7 +222,7 @@ function addDay(d,n){var x=dateObj(d);x.setDate(x.getDate()+n);return dateStr(x)
 function weekOf(d){var x=dateObj(d),off=(x.getDay()+6)%7;x.setDate(x.getDate()-off);return 'wk'+dateStr(x);}
 function weekEnd(w){return /^wk\d{8}$/.test(w)?addDay(w.slice(2),6):'';}
 function weekLabel(w){if(/^wk\d{8}$/.test(w)){var s=w.slice(2),e=weekEnd(w);return s.slice(4,6)+'/'+s.slice(6)+'–'+e.slice(4,6)+'/'+e.slice(6);}return String(w||'').toUpperCase();}
-function periodOf(d){return monthOf(d)+'_'+weekOf(d);}
+function periodOf(d){var w=weekOf(d),e=weekEnd(w);return monthOf(e||d)+'_'+w;}
 function isWeekPeriod(p){return /^\d{6}_(wk\d{8}|w[1-4])$/.test(String(p||''));}
 function periodLabel(p){p=String(p||'');if(/^\d{6}_all$/.test(p))return parseInt(p.slice(4,6),10)+'月整月';if(/^rng\d{8}_\d{8}$/.test(p)){var a=p.slice(3,11),b=p.slice(12,20);return rangeLabel(a,b);}var ps=p.split('_');return ps[1]?weekLabel(ps[1]):p;}
 function daysBetween(a,b){return Math.round((dateObj(b)-dateObj(a))/86400000);}
@@ -261,7 +261,7 @@ function buildD(payloads){
   D.dates.sort();['zibo','dabo','zy_shelf','dy_short'].forEach(function(ch){D.dates.forEach(function(dt){finM(D.daily[dt][ch]);});});
   var rng=function(ds){if(!ds.length)return '';var a=ds[0],b=ds[ds.length-1];return a.slice(4,6)+'/'+a.slice(6)+'\u2013'+b.slice(4,6)+'/'+b.slice(6);};
   var byPid={},monthsMap={};
-  function markPeriodDate(dt,keepDate){if(!/^\d{8}$/.test(dt||''))return;var mo=monthOf(dt),wk=weekOf(dt),pid=periodOf(dt);if(!byPid[pid])byPid[pid]=[];if(keepDate)byPid[pid].push(dt);(monthsMap[mo]=monthsMap[mo]||{})[wk]=1;}
+  function markPeriodDate(dt,keepDate){if(!/^\d{8}$/.test(dt||''))return;var mo=monthOf(dt),wk=weekOf(dt),pid=periodOf(dt),wmo=periodMonth(pid)||mo;if(!byPid[pid])byPid[pid]=[];if(keepDate)byPid[pid].push(dt);monthsMap[mo]=monthsMap[mo]||{};(monthsMap[wmo]=monthsMap[wmo]||{})[wk]=1;}
   function markPeriodKey(pk){pk=normalizePeriodKey(pk);if(isWeekPeriod(pk)){var ps=pk.split('_');(monthsMap[ps[0]]=monthsMap[ps[0]]||{})[ps[1]]=1;if(!byPid[pk])byPid[pk]=[];}else if(/^\d{6}_all$/.test(pk)){monthsMap[pk.slice(0,6)]=monthsMap[pk.slice(0,6)]||{};}else if(/^rng\d{8}_\d{8}$/.test(pk)){markPeriodDate(periodStart(pk),false);markPeriodDate(periodEnd(pk),false);}}
   D.dates.forEach(function(dt){markPeriodDate(dt,true);});
   (c.touliu||[]).forEach(function(f){var seen=false;(f.rows||[]).forEach(function(r){var d=gyDate(r['日期']);if(d){markPeriodDate(d,false);seen=true;}});if(!seen&&isWeekPeriod(f.period)){var mo=f.period.split('_')[0],wk=f.period.split('_')[1];if(!byPid[f.period])byPid[f.period]=[];(monthsMap[mo]=monthsMap[mo]||{})[wk]=1;}});
@@ -461,7 +461,7 @@ function rangeLabel(a,b){return a&&b?a.slice(4,6)+'/'+a.slice(6)+'–'+b.slice(4
 function customReady(){return /^\d{8}$/.test(customRange.start)&&/^\d{8}$/.test(customRange.end)&&customRange.start<=customRange.end;}
 function activeGoalMonth(){return (curMonth==='custom'&&/^\d{8}$/.test(customRange.start))?customRange.start.slice(0,6):curMonth;}
 function inCustom(d){return customReady()&&/^\d{8}$/.test(d||'')&&d>=customRange.start&&d<=customRange.end;}
-function dateInPeriod(dt,p){p=p||per;if(!/^\d{8}$/.test(dt||''))return false;if(p==='all')return true;if(p==='custom')return inCustom(dt);var ps=String(p).split('_');if(monthOf(dt)!==ps[0])return false;if(ps[1]==='all')return true;return weekOf(dt)===ps[1];}
+function dateInPeriod(dt,p){p=p||per;if(!/^\d{8}$/.test(dt||''))return false;if(p==='all')return true;if(p==='custom')return inCustom(dt);var ps=String(p).split('_');if(ps[1]==='all')return monthOf(dt)===ps[0];if(/^wk\d{8}$/.test(ps[1]||''))return periodOf(dt)===p;return monthOf(dt)===ps[0]&&weekOf(dt)===ps[1];}
 function allKnownDates(){var seen={};function add(d){if(/^\d{8}$/.test(d||''))seen[d]=1;}(D&&D.dates||[]).forEach(add);if(D&&D.live)Object.keys(D.live).forEach(function(rm){(D.live[rm].records||[]).forEach(function(r){add(r.date);});});if(D&&D.danmu&&D.danmu.msgs)D.danmu.msgs.forEach(function(m){add(m.date);});var raw=(D&&D._raw)||{};(raw.touliu||[]).forEach(function(f){(f.rows||[]).forEach(function(r){add(gyDate(r['日期']));});});(raw.prodFiles||[]).forEach(function(f){(f.rows||[]).forEach(function(r){add(gyDate(r['统计周期']||r['日期']));});});return Object.keys(seen).sort();}
 function initCustomRange(){if(!D)return;if(customRange.start&&customRange.end)return;var ds=(D.periods&&D.periods[per]&&D.periods[per].dates||[]).slice().sort();if(!ds.length&&per&&per!=='custom')ds=allKnownDates().filter(function(d){return dateInPeriod(d,per);});if(!ds.length&&curMonth&&/^\d{6}$/.test(curMonth))ds=allKnownDates().filter(function(d){return monthOf(d)===curMonth;});if(!ds.length)ds=allKnownDates();customRange.start=ds[0]||'';customRange.end=ds[ds.length-1]||customRange.start||'';}
 function ensureCustomPeriod(){
@@ -956,7 +956,7 @@ buildTgt();renderActions();
   function hasStore(v){if(!v||v==='{}'||v==='null')return false;try{return Object.keys(JSON.parse(v)).length>0;}catch(e){return false;}}
   function parseSnapshot(v){if(!v)return null;if(typeof v==='string'){try{v=JSON.parse(v);}catch(e){return null;}}if(!v||v.schema!=='gy-central-store-v1'||!v.seed||typeof v.seed.gy_import_store_v1!=='string')return null;return v;}
   function fetchCentral(){return fetch(CENTRAL_URL+'?v='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(v){v=parseSnapshot(v);if(!v)throw new Error('中央快照格式无效');return v;});}
-  function applySmallSeed(snapshot){var sd=snapshot&&snapshot.seed;if(!sd)return;Object.keys(sd).forEach(function(k){if(k!=='gy_import_store_v1'&&sd[k]!=null){try{localStorage.setItem(k,sd[k]);}catch(e){}}});tgtsAll=loadTgts();actions=loadActions();concls=loadConcls();buildTgt();renderActions();}
+  function applySmallSeed(snapshot){var sd=snapshot&&snapshot.seed;if(!sd)return;Object.keys(sd).forEach(function(k){if(k!=='gy_import_store_v1'&&sd[k]!=null){try{localStorage.setItem(k,sd[k]);}catch(e){}}});try{tgtsAll=JSON.parse(sd.gy_tgts_v1||'{}')||{};}catch(e){tgtsAll={};}actions=loadActions();try{concls=JSON.parse(sd.gy_imp_concl||'{}')||{};}catch(e){concls={};}buildTgt();renderActions();}
   function boot(){
     Promise.all([idbGet('gy_import_store_v1'),idbGet(GY_CENTRAL_CACHE_KEY),fetchCentral().catch(function(){return null;})]).then(function(v){
       var localStore=v[0]||localStorage.getItem(STORE_KEY);var cached=parseSnapshot(v[1]);var fresh=parseSnapshot(v[2]);var central=fresh||cached;var queryLocal=false;try{queryLocal=new URL(location.href).searchParams.get('mode')==='local';}catch(e){}
@@ -965,12 +965,411 @@ buildTgt();renderActions();
       if(queryLocal&&hasStore(localStore)){GYMEM.mode='local';GYMEM.store=localStore;}else{GYMEM.mode=queryLocal?'local':'viewer';GYMEM.store=GYMEM.centralStore;applySmallSeed(central);}
       if(fresh)idbSet(GY_CENTRAL_CACHE_KEY,JSON.stringify(fresh));
       GYMEM.suppressPersist=GYMEM.mode==='viewer';migrateStore();GYMEM.suppressPersist=false;rebuildFromStore();
-      window.__GY_CENTRAL_STATE__={ready:true,mode:GYMEM.mode,version:GYMEM.centralVersion,network:!!fresh,source:central.source_file||'',storeKeys:Object.keys(loadStore()).length};
+      window.__GY_CENTRAL_STATE__={ready:true,mode:GYMEM.mode,version:GYMEM.centralVersion,revision:(central.workbench&&central.workbench.revision)||central.version||'',network:!!fresh,source:central.source_file||'',storeKeys:Object.keys(loadStore()).length};
     }).catch(function(e){GYMEM.store='{}';window.__GY_CENTRAL_STATE__={ready:true,mode:'viewer',version:'',network:false,error:e.message};rebuildFromStore();setStatus('中央数据加载失败，请刷新页面');});
   }
   idbOpen().then(boot,boot);
 })();
 
+</script><script id="__gyWorkbench">(function () {
+  "use strict";
+
+  var HINT_KEY = "gy_workbench_manage_hint_v1";
+  var state = {
+    authorized: false,
+    revision: "",
+    pending: {},
+    timer: null,
+    flushing: false,
+    versions: [],
+    mirror: { state: "not_checked" },
+  };
+
+  function centralState() {
+    return window.__GY_CENTRAL_STATE__ || {};
+  }
+
+  function hasManagementHint() {
+    try {
+      return localStorage.getItem(HINT_KEY) === "1";
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function queryRequestsManagement() {
+    try { return new URL(location.href).searchParams.get("manage") === "1"; }
+    catch (error) { return false; }
+  }
+
+  function managementRequested() {
+    return queryRequestsManagement() || hasManagementHint();
+  }
+
+  function api(path, options) {
+    var settings = Object.assign({ credentials: "same-origin", cache: "no-store" }, options || {});
+    settings.headers = Object.assign({}, settings.headers || {});
+    if (settings.body && !settings.headers["Content-Type"]) settings.headers["Content-Type"] = "application/json";
+    return fetch(path, settings).then(function (response) {
+      return response.text().then(function (text) {
+        var body = {};
+        try { body = text ? JSON.parse(text) : {}; } catch (error) { body = { message: text || "接口返回异常" }; }
+        if (!response.ok) {
+          var failure = new Error(body.message || ("HTTP " + response.status));
+          failure.status = response.status;
+          failure.body = body;
+          throw failure;
+        }
+        return body;
+      });
+    });
+  }
+
+  function ensureUi() {
+    if (document.getElementById("gywbStyle")) return;
+    var style = document.createElement("style");
+    style.id = "gywbStyle";
+    style.textContent = [
+      "#gywbAdmin{position:fixed;right:16px;top:14px;z-index:2147483000;font:13px/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei',sans-serif;color:#443d31}",
+      "#gywbPill{border:1px solid #d8c69f;border-radius:999px;background:#fffaf0;box-shadow:0 3px 12px #5b4b3022;padding:7px 12px;cursor:pointer;font-weight:700}",
+      "#gywbPill.ok{color:#1f7a42;border-color:#9bc8aa;background:#f2fff6}#gywbPill.wait{color:#8a6500;border-color:#e4cc7c;background:#fffbeb}#gywbPill.bad{color:#a92c2c;border-color:#e1a0a0;background:#fff4f4}",
+      "#gywbDrawer{display:none;margin-top:8px;width:330px;background:#fff;border:1px solid #dfd2b8;border-radius:12px;box-shadow:0 10px 30px #33281433;padding:13px}",
+      "#gywbDrawer.open{display:block}#gywbDrawer h3{margin:0 0 8px;font-size:15px;color:#6b521b}#gywbDrawer p{margin:6px 0;color:#756a57;font-size:12px}",
+      "#gywbDrawer select,#gywbDrawer button{font:inherit}#gywbDrawer select{width:100%;box-sizing:border-box;border:1px solid #d8c9ac;border-radius:7px;padding:7px;background:#fff;margin:4px 0 8px}",
+      "#gywbWeekLog{width:100%;min-height:72px;box-sizing:border-box;border:1px solid #d8c9ac;border-radius:7px;padding:8px;background:#fff;font:inherit;resize:vertical;margin:0 0 8px}",
+      ".gywbBtns{display:flex;flex-wrap:wrap;gap:6px}.gywbBtns button{border:1px solid #d5c5a6;border-radius:7px;background:#fffaf0;color:#5f5137;padding:6px 9px;cursor:pointer}.gywbBtns button.danger{color:#9b2d2d;border-color:#e1b1b1;background:#fff7f7}",
+      "#gywbLogin{display:none;position:fixed;inset:0;z-index:2147483640;background:#1f1b1466;align-items:center;justify-content:center;font:14px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei',sans-serif}",
+      "#gywbLogin.open{display:flex}#gywbLoginBox{width:min(390px,calc(100vw - 36px));background:#fff;border-radius:14px;box-shadow:0 18px 55px #0005;padding:22px;box-sizing:border-box}",
+      "#gywbLoginBox h2{margin:0 0 6px;color:#664d18;font-size:19px}#gywbLoginBox p{margin:0 0 12px;color:#756a57}#gywbKey{width:100%;box-sizing:border-box;border:1px solid #cdbb97;border-radius:8px;padding:10px;font:inherit}",
+      "#gywbLoginActions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}#gywbLoginActions button{border:1px solid #ccb98f;border-radius:8px;padding:7px 13px;background:#fff;cursor:pointer}#gywbLoginActions button.primary{background:#8b6a20;color:#fff;border-color:#8b6a20}",
+      "#gywbLoginError{min-height:20px;margin-top:7px;color:#a52b2b;font-size:12px}",
+    ].join("");
+    document.head.appendChild(style);
+
+    var admin = document.createElement("div");
+    admin.id = "gywbAdmin";
+    admin.style.display = "none";
+    admin.innerHTML = '<button id="gywbPill" type="button">管理连接中</button>' +
+      '<div id="gywbDrawer"><h3>国韵 Web 工作台</h3><p id="gywbDetail">正在读取中央版本…</p>' +
+      '<label for="gywbWeek">本周动作日志</label><select id="gywbWeek"></select><textarea id="gywbWeekLog" placeholder="记录这周改了什么素材、价格、主播或活动…"></textarea>' +
+      '<label for="gywbVersions">历史版本（保留最近 10 版）</label><select id="gywbVersions"></select>' +
+      '<div class="gywbBtns"><button id="gywbRollback" type="button">回滚到所选版</button><button id="gywbRetry" type="button">重试保存</button><button id="gywbMirror" type="button">重试镜像</button><button id="gywbRotate" type="button">更换管理密钥</button><button id="gywbLogout" class="danger" type="button">退出管理</button></div></div>';
+    document.body.appendChild(admin);
+
+    var login = document.createElement("div");
+    login.id = "gywbLogin";
+    login.innerHTML = '<div id="gywbLoginBox"><h2>进入管理态</h2><p>输入一次管理密钥。本机将保存加密会话，密钥原文不会写进网页数据或镜像。</p>' +
+      '<input id="gywbKey" type="password" autocomplete="current-password" placeholder="管理密钥">' +
+      '<div id="gywbLoginError"></div><div id="gywbLoginActions"><button id="gywbCancel" type="button">取消</button><button id="gywbLoginSubmit" class="primary" type="button">验证并进入</button></div></div>';
+    document.body.appendChild(login);
+
+    document.getElementById("gywbPill").addEventListener("click", function () {
+      document.getElementById("gywbDrawer").classList.toggle("open");
+    });
+    document.getElementById("gywbCancel").addEventListener("click", closeLogin);
+    document.getElementById("gywbLoginSubmit").addEventListener("click", submitLogin);
+    document.getElementById("gywbKey").addEventListener("keydown", function (event) {
+      if (event.key === "Enter") submitLogin();
+    });
+    document.getElementById("gywbWeek").addEventListener("change", loadWeekLog);
+    document.getElementById("gywbWeekLog").addEventListener("input", saveWeekLog);
+    document.getElementById("gywbRetry").addEventListener("click", flush);
+    document.getElementById("gywbMirror").addEventListener("click", retryMirror);
+    document.getElementById("gywbRollback").addEventListener("click", rollback);
+    document.getElementById("gywbRotate").addEventListener("click", rotateKey);
+    document.getElementById("gywbLogout").addEventListener("click", logout);
+  }
+
+  function setPill(kind, text, detail) {
+    ensureUi();
+    var pill = document.getElementById("gywbPill");
+    pill.className = kind || "";
+    pill.textContent = text;
+    if (detail) document.getElementById("gywbDetail").textContent = detail;
+  }
+
+  function mirrorLabel(mirror) {
+    if (!mirror) return "镜像状态未知";
+    if (mirror.state === "online") return "镜像已在线锚定";
+    if (mirror.state === "propagating") return "镜像已提交，GitHub Pages 发布中";
+    if (mirror.state === "failed") return "镜像同步失败，请点“重试镜像”";
+    return "镜像尚未核验";
+  }
+
+  function renderVersions() {
+    ensureUi();
+    var select = document.getElementById("gywbVersions");
+    select.innerHTML = state.versions.filter(function (entry) { return !entry.current; }).map(function (entry) {
+      var time = entry.generated_at ? new Date(entry.generated_at).toLocaleString("zh-CN", { hour12: false }) : entry.revision;
+      return '<option value="' + String(entry.revision).replace(/&/g, "&amp;").replace(/"/g, "&quot;") + '">' + time + " · " + (entry.change_kind || "历史版") + "</option>";
+    }).join("");
+    document.getElementById("gywbRollback").disabled = !select.options.length;
+  }
+
+  function weekEntries() {
+    var result = [];
+    var months = window.D && Array.isArray(window.D.months) ? window.D.months : [];
+    months.forEach(function (month) {
+      (month.weeks || []).forEach(function (week) {
+        result.push({ key: "dmact_" + month.key + "_" + week, label: month.label + " · " + (typeof window.weekLabel === "function" ? window.weekLabel(week) : week) });
+      });
+    });
+    return result;
+  }
+
+  function renderWeekEditor() {
+    ensureUi();
+    var select = document.getElementById("gywbWeek");
+    var previous = select.value;
+    var entries = weekEntries();
+    select.innerHTML = entries.map(function (entry) {
+      return '<option value="' + entry.key + '">' + entry.label + "</option>";
+    }).join("");
+    if (entries.some(function (entry) { return entry.key === previous; })) select.value = previous;
+    else if (entries.length) select.value = entries[entries.length - 1].key;
+    select.disabled = !entries.length;
+    loadWeekLog();
+  }
+
+  function loadWeekLog() {
+    var select = document.getElementById("gywbWeek");
+    var textarea = document.getElementById("gywbWeekLog");
+    if (!select || !textarea) return;
+    textarea.disabled = !select.value;
+    textarea.value = select.value && window.concls ? (window.concls[select.value] || "") : "";
+  }
+
+  function saveWeekLog() {
+    if (!state.authorized) return;
+    var key = document.getElementById("gywbWeek").value;
+    var value = document.getElementById("gywbWeekLog").value;
+    if (key && typeof window.saveConcl === "function") window.saveConcl(key, value);
+  }
+
+  function applyEditingState() {
+    var editable = state.authorized;
+    var controls = document.querySelectorAll('#tg input[type="number"],#conclRow textarea,textarea[oninput^="saveConcl(\\\'dmact_"]');
+    Array.prototype.forEach.call(controls, function (control) { control.readOnly = !editable; });
+    Array.prototype.forEach.call(document.querySelectorAll("#conclRow .cc-tag"), function (tag) {
+      if (!tag.dataset.gywbOriginal) tag.dataset.gywbOriginal = tag.textContent;
+      var wanted = editable ? "中央同步" : tag.dataset.gywbOriginal;
+      if (tag.textContent !== wanted) tag.textContent = wanted;
+      tag.title = editable ? "修改后自动同步到中央数据" : "公开浏览为只读；负责人从管理入口持钥编辑";
+    });
+  }
+
+  function showAdmin(status) {
+    state.authorized = true;
+    state.revision = status.revision || centralState().revision || centralState().version || "";
+    state.versions = status.versions || [];
+    state.mirror = status.mirror || { state: "not_checked" };
+    try { localStorage.setItem(HINT_KEY, "1"); } catch (error) {}
+    ensureUi();
+    document.getElementById("gywbAdmin").style.display = "block";
+    renderVersions();
+    renderWeekEditor();
+    var mirror = mirrorLabel(state.mirror);
+    if (state.mirror.state === "failed") setPill("bad", "管理态 · 镜像失败", "中央版本 " + state.revision + "；" + mirror);
+    else if (state.mirror.state === "propagating") setPill("wait", "管理态 · 镜像发布中", "中央版本 " + state.revision + "；" + mirror);
+    else setPill("ok", "管理态 · 已同步", "中央版本 " + state.revision + "；" + mirror);
+    applyEditingState();
+  }
+
+  function lockAdmin() {
+    state.authorized = false;
+    ensureUi();
+    document.getElementById("gywbAdmin").style.display = "none";
+    applyEditingState();
+  }
+
+  function openLogin(message) {
+    ensureUi();
+    document.getElementById("gywbLoginError").textContent = message || "";
+    document.getElementById("gywbLogin").classList.add("open");
+    setTimeout(function () { document.getElementById("gywbKey").focus(); }, 20);
+  }
+
+  function closeLogin() {
+    ensureUi();
+    document.getElementById("gywbKey").value = "";
+    document.getElementById("gywbLogin").classList.remove("open");
+  }
+
+  function submitLogin() {
+    var input = document.getElementById("gywbKey");
+    var key = input.value;
+    var error = document.getElementById("gywbLoginError");
+    if (!key) { error.textContent = "请输入管理密钥。"; return; }
+    error.textContent = "正在验证…";
+    api("/api/admin/session", { method: "POST", body: JSON.stringify({ key: key }) }).then(function () {
+      input.value = "";
+      closeLogin();
+      return api("/api/admin/status");
+    }).then(showAdmin).catch(function (failure) {
+      input.value = "";
+      error.textContent = failure.message || "密钥验证失败。";
+      input.focus();
+    });
+  }
+
+  function refreshStatus() {
+    return api("/api/admin/status").then(showAdmin);
+  }
+
+  function stage(field, value) {
+    if (!state.authorized) return;
+    state.pending[field] = value;
+    clearTimeout(state.timer);
+    setPill("wait", "管理态 · 待保存", "修改将在停止输入后自动同步。");
+    state.timer = setTimeout(flush, 1400);
+  }
+
+  function flush() {
+    clearTimeout(state.timer);
+    state.timer = null;
+    if (!state.authorized || state.flushing || !Object.keys(state.pending).length) return;
+    var batch = state.pending;
+    state.pending = {};
+    state.flushing = true;
+    setPill("wait", "管理态 · 保存中", "正在写入中央版本并同步 GitHub 镜像…");
+    api("/api/admin/workspace", {
+      method: "PATCH",
+      body: JSON.stringify({ base_revision: state.revision, fields: batch }),
+    }).then(function (result) {
+      state.revision = result.revision;
+      state.mirror = result.mirror || {};
+      return refreshStatus();
+    }).catch(function (failure) {
+      var body = failure.body || {};
+      if (body.central_updated && body.revision) {
+        state.revision = body.revision;
+        state.mirror = body.mirror || { state: "failed" };
+        setPill("bad", "中央已保存 · 镜像失败", body.mirror && body.mirror.message ? body.mirror.message : "请点“重试镜像”。");
+        return refreshStatus().catch(function () {});
+      }
+      Object.keys(batch).forEach(function (key) { if (!(key in state.pending)) state.pending[key] = batch[key]; });
+      if (failure.status === 409) {
+        setPill("bad", "版本冲突", "另一页面已更新中央数据，将刷新到最新版。");
+        alert("中央数据已被另一页面更新。当前页面将刷新到最新版，避免覆盖别人的修改。");
+        location.reload();
+        return;
+      }
+      if (failure.status === 401) {
+        lockAdmin();
+        openLogin("管理会话已失效，请重新输入密钥。");
+        return;
+      }
+      setPill("bad", "保存失败", (failure.message || "保存失败") + "；修改尚未丢失，可点“重试保存”。");
+    }).finally(function () {
+      state.flushing = false;
+      if (Object.keys(state.pending).length && state.authorized) state.timer = setTimeout(flush, 300);
+    });
+  }
+
+  function retryMirror() {
+    if (!state.authorized) return;
+    setPill("wait", "管理态 · 重试镜像", "正在重新提交并核验镜像…");
+    api("/api/admin/mirror-retry", { method: "POST", body: "{}" }).then(function () {
+      return refreshStatus();
+    }).catch(function (failure) {
+      setPill("bad", "镜像仍失败", failure.message || "请稍后重试。");
+    });
+  }
+
+  function rollback() {
+    if (!state.authorized || state.flushing || Object.keys(state.pending).length) {
+      alert("请先等当前修改保存完成，再执行回滚。");
+      return;
+    }
+    var select = document.getElementById("gywbVersions");
+    var target = select.value;
+    if (!target || !confirm("确认回滚到所选历史版本？回滚本身也会形成一个可追溯的新版本。")) return;
+    setPill("wait", "管理态 · 回滚中", "正在恢复历史版本并同步镜像…");
+    api("/api/admin/rollback", {
+      method: "POST",
+      body: JSON.stringify({ base_revision: state.revision, target_revision: target }),
+    }).then(function (result) {
+      state.revision = result.revision;
+      location.reload();
+    }).catch(function (failure) {
+      var body = failure.body || {};
+      if (body.central_updated && body.revision) {
+        alert("中央数据已回滚，但镜像同步失败。刷新后请在管理面板点“重试镜像”。");
+        location.reload();
+        return;
+      }
+      setPill("bad", "回滚失败", failure.message || "请刷新后重试。");
+    });
+  }
+
+  function rotateKey() {
+    if (!state.authorized) return;
+    var first = prompt("请输入新的管理密钥（至少 20 个字符）：");
+    if (first == null) return;
+    var second = prompt("请再次输入新的管理密钥：");
+    if (first !== second) { alert("两次输入不一致，管理密钥没有更改。"); return; }
+    api("/api/admin/rotate-key", { method: "POST", body: JSON.stringify({ new_key: first }) }).then(function () {
+      alert("管理密钥已更换，旧会话已全部失效；本机已换成新会话。");
+      return refreshStatus();
+    }).catch(function (failure) {
+      alert(failure.message || "管理密钥更换失败。");
+    });
+  }
+
+  function logout() {
+    api("/api/admin/logout", { method: "POST", body: "{}" }).catch(function () {}).finally(function () {
+      try { localStorage.removeItem(HINT_KEY); } catch (error) {}
+      state.pending = {};
+      lockAdmin();
+    });
+  }
+
+  function installSaveAdapters() {
+    if (window.__GY_WORKBENCH_ADAPTERS__) return;
+    window.__GY_WORKBENCH_ADAPTERS__ = true;
+    if (typeof window.saveTgts === "function") {
+      var originalSaveTgts = window.saveTgts;
+      window.saveTgts = function () {
+        var result = originalSaveTgts.apply(this, arguments);
+        try { stage("gy_tgts_v1", JSON.stringify(window.tgtsAll || {})); } catch (error) {}
+        return result;
+      };
+    }
+    if (typeof window.saveConcl === "function") {
+      var originalSaveConcl = window.saveConcl;
+      window.saveConcl = function () {
+        var result = originalSaveConcl.apply(this, arguments);
+        try { stage("gy_imp_concl", JSON.stringify(window.concls || {})); } catch (error) {}
+        return result;
+      };
+    }
+    window.GY_WORKBENCH = {
+      canEdit: function () { return state.authorized; },
+      flush: flush,
+      open: function () { openLogin(""); },
+    };
+  }
+
+  function start() {
+    ensureUi();
+    installSaveAdapters();
+    applyEditingState();
+    new MutationObserver(function () { applyEditingState(); }).observe(document.body, { childList: true, subtree: true });
+    document.addEventListener("change", function () { if (state.authorized && Object.keys(state.pending).length) flush(); }, true);
+    window.addEventListener("beforeunload", function (event) {
+      if (state.flushing || Object.keys(state.pending).length) {
+        event.preventDefault();
+        event.returnValue = "修改仍在同步中";
+      }
+    });
+    if (!managementRequested()) return;
+    if (!hasManagementHint()) { openLogin(""); return; }
+    refreshStatus().catch(function () { lockAdmin(); openLogin("管理会话已失效，请重新输入密钥。"); });
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+})();
 </script></body></html>
 
 

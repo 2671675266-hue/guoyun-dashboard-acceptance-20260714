@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "include": [
+    "/data/store.json",
+    "/hashes.txt",
+    "/api/admin/*"
+  ],
+  "exclude": []
+}
