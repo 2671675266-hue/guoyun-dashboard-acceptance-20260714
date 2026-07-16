@@ -157,6 +157,32 @@ body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;backgr
 .inv-tbl{width:100%;border-collapse:collapse;font-size:11px}
 .inv-tbl th{color:#b3a890;padding:5px 6px;text-align:left;border-bottom:1px solid #ece2cf;font-weight:500;font-size:10px}
 .inv-tbl td{padding:4px 6px;color:#5a503e;border-bottom:1px solid #efe7d6}
+.tl-id-overview{background:#fffdf8;border:1px solid #e8dcc5;border-radius:9px;padding:11px 12px;margin:10px 0 12px}
+.tl-id-overview-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:8px}
+.tl-id-overview-note{font-size:9px;color:#b3a890;line-height:1.55;text-align:right}
+.tl-id-compare{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tl-id-card{border:1px solid #ece2cf;border-radius:8px;padding:9px 10px;background:#fff}
+.tl-id-card.self{border-left:4px solid #2f6fd6}.tl-id-card.creator{border-left:4px solid #d97706}
+.tl-id-card-head{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;color:#392f20;margin-bottom:7px}
+.tl-id-metrics{display:grid;grid-template-columns:repeat(4,minmax(78px,1fr));gap:6px}
+.tl-id-metric{background:#faf6ec;border-radius:6px;padding:6px 7px}
+.tl-id-metric span{display:block;font-size:9px;color:#b3a890;margin-bottom:2px}.tl-id-metric b{font-size:12px;color:#5a503e}
+.tl-id-bar{height:6px;background:#efe7d6;border-radius:999px;overflow:hidden;margin-top:5px}.tl-id-bar>i{display:block;height:100%;border-radius:999px}
+.tl-id-filter-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.tl-id-filter{border:1px solid #ddd0b6;background:#fff;color:#8a7d66;border-radius:7px;padding:6px 9px;cursor:pointer;font:inherit;font-size:10px;line-height:1.35}
+.tl-id-filter:hover{border-color:#c9a227}.tl-id-filter.on{background:#c9a227;color:#2e2400;border-color:#c9a227;font-weight:700}
+.tl-id-filter small{display:block;font-size:8px;opacity:.82;font-weight:400}
+.tl-id-summary{font-size:10px;color:#8a7d66;margin:6px 0}
+.tl-id-table-wrap{max-height:520px;overflow:auto;border:1px solid #ece2cf;border-radius:7px;background:#fff}
+.tl-id-table-wrap .inv-tbl{min-width:1280px}.tl-id-table-wrap th{position:sticky;top:0;background:#fffdf8;z-index:1}
+.tl-id-name{max-width:260px;min-width:180px}.tl-id-badge{display:inline-block;border-radius:999px;padding:2px 7px;font-size:9px;font-weight:700;white-space:nowrap}
+.tl-id-badge.creator{background:#d9770618;color:#b75d00}.tl-id-badge.external{background:#8e44ad18;color:#7d3594}
+.tl-id-badge.team1{background:#2f6fd618;color:#2f6fd6}.tl-id-badge.team2{background:#2e8b5718;color:#2e8b57}.tl-id-badge.pending{background:#b07d1218;color:#9a6900}
+.tl-id-alerts{margin-top:10px;border:1px solid #e7c8c4;background:#fff8f7;border-radius:8px;padding:8px 10px;font-size:10px;color:#8a4b43}
+.tl-id-alerts summary{cursor:pointer;font-weight:700}.tl-id-alert-list{max-height:260px;overflow:auto;margin-top:8px}
+.tl-id-alert-item{padding:7px 0;border-top:1px solid #efd9d6;line-height:1.6}.tl-id-alert-item:first-child{border-top:0}
+.tl-id-warning{margin-top:7px;padding:6px 8px;background:#fff8e8;border:1px solid #ead49b;border-radius:6px;color:#8a6500;font-size:9px;line-height:1.55}
+@media(max-width:760px){.tl-id-compare{grid-template-columns:1fr}.tl-id-metrics{grid-template-columns:1fr 1fr}.tl-id-overview-head{display:block}.tl-id-overview-note{text-align:left;margin-top:4px}}
 .mod-hide{display:none !important}
 .empty{text-align:center;padding:60px 20px;color:#b3a890}
 .empty h2{color:#8a7d66;font-size:16px;margin-bottom:8px}
@@ -201,7 +227,7 @@ body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;backgr
     <div class="action-add"><input type="text" id="actInput" placeholder="输入行动项…"><input type="text" id="actProposer" placeholder="提出人" style="width:70px"><input type="text" id="actOwner" placeholder="负责人" style="width:70px"><select id="actStatus"><option value="wait">待执行</option><option value="doing">进行中</option><option value="done">已完成</option></select><input type="date" id="actDeadline" style="width:130px"><button class="add-btn" onclick="addAction()">+ 添加</button></div>
     <div style="overflow-x:auto"><table class="act-tbl" id="actTbl"><tbody><tr><th>行动项</th><th>提出人</th><th>负责人</th><th>状态</th><th>截止日期</th><th>操作</th></tr><tr><td colspan="6" style="text-align:center;color:#b3a890;padding:14px">还没有行动项，开会时在上方添加</td></tr></tbody></table></div>
   </div>
-  <div class="note" id="srcnote">数据来源：抖音电商罗盘 + 经营版商品列表（人工导出导入） + 千川API日报（投流模块） · 时间口径：周=完整自然周（可跨月）；月=自然月；跨月周会在相关两个月视图重复出现，但月总只计本月日期，因此月内周加总可不等于月总 · 业务口径：成交GMV(含平台补贴)，退款率=金额退货率(退款额÷成交GMV)·订单退货率(退款单÷成交单)，支付时间口径，净GMV=成交GMV−退款金额 · 触点=自营/合作×载体；千川API触点按账户名映射 · 已导入周期由中央数据运行时生成</div>
+  <div class="note" id="srcnote">数据来源：抖音电商罗盘 + 经营版商品列表（人工导出导入） + 千川API日报（投流模块） · 时间口径：周=完整自然周（可跨月）；月=自然月；跨月周会在相关两个月视图重复出现，但月总只计本月日期，因此月内周加总可不等于月总 · 业务口径：成交GMV(含平台补贴)，退款率=金额退货率(退款额÷成交GMV)·订单退货率(退款单÷成交单)，支付时间口径，净GMV=成交GMV−退款金额 · 素材身份口径（仅自营货架视频）：STAR+BY_VIDEO+VIDEO 唯一桥接=达人；未命中进入自制分组；平台标签只作最近一次素材导出快照校验，页面显式展示覆盖率/周期，冲突报警且不覆盖 STAR；SELF 不作为单条素材依据 · 触点=自营/合作×载体；千川API触点按账户名映射 · 已导入周期由中央数据运行时生成</div>
 </div>
 <div class="empty" id="emptyState" style="display: none;"><h2>还没有数据</h2><p>把完整批次从抖音罗盘 / 经营版导出的 xlsx 拖进上方虚线框，看板就会生成。<br>日明细进入纯自然月，完整周按周一至周日累积；跨月周会同时关联起始月和结束月。</p></div>
 <script>
@@ -394,30 +420,134 @@ function touliuChan(name){name=String(name||'');if(name.indexOf('自播')>=0)ret
 function touliuPeriod(sheets){var sh=sheets[Object.keys(sheets)[0]]||[];for(var i=0;i<sh.length;i++){var d=gyDate(sh[i]['日期']);if(d)return periodOf(d);}return '000000_wk00000000';}
 function qcHas(r,k){return r&&r[k]!=null&&r[k]!=='';}
 function qcDate(v){var d=gyDate(String(v||'').replace(/-/g,'/'));return d||String(v||'').replace(/[^0-9]/g,'').slice(0,8);}
-function qcChan(r){var n=S(r.account_name);if(/达播|代投|望盛/.test(n))return 'dabo';if(/达人/.test(n))return 'dy_short';if(/直播|自播/.test(n))return 'zibo';return 'zy_shelf';}
+var QC_ACCOUNT_CHAN={'1841581240024778':'zy_shelf','1710621310336004':'zy_shelf','1841581403523785':'dy_short','1863165213655306':'dy_short','1866142023488967':'zibo','1843956002771338':'zibo','1867496463829068':'dabo','1855098207338508':'dabo','1855731657470983':'dabo'};
+function qcChan(r){return QC_ACCOUNT_CHAN[cleanApiText(r&&r.advertiser_id)]||'';}
 var QC_PRODUCT_ALIAS={'3724828755085099401':'面霜正装','3775307299539780019':'面霜中样','3806796676988010635':'冰感面膜'};
 function cleanApiText(v){var s=S(v);return (!s||/^null$/i.test(s)||/^undefined$/i.test(s)||s==='-')?'':s;}
 function normTouliuProductName(name,id){var pid=cleanApiText(id),nm=cleanApiText(name);if(QC_PRODUCT_ALIAS[pid])return QC_PRODUCT_ALIAS[pid];if(QC_PRODUCT_ALIAS[nm])return QC_PRODUCT_ALIAS[nm];if(/^\d{12,}$/.test(nm))return '';if(nm.indexOf('红鹤')>=0)return '面霜正装';if(nm.indexOf('多维修护')>=0||nm.indexOf('中样')>=0||nm.indexOf('小样')>=0)return '面霜中样';if(nm.indexOf('冰感')>=0)return '冰感面膜';return nm;}
 function qcMetricRow(r,d){var cost=num(r.cost),gmv=num(r.gmv),refund=num(r.refund_1h_amount);return {'日期':d,'整体消耗':cost,'整体成交金额':gmv,'整体成交订单数':num(r.orders),'整体支付ROI':qcHas(r,'pay_roi')?num(r.pay_roi):(cost?gmv/cost:0),'净成交金额':qcHas(r,'settle_1h_amount')?num(r.settle_1h_amount):Math.max(0,gmv-refund),'7日结算金额':qcHas(r,'settle_7d_amount')?num(r.settle_7d_amount):0,'14日结算金额':qcHas(r,'settle_14d_amount')?num(r.settle_14d_amount):0,'30日结算金额':qcHas(r,'settle_30d_amount')?num(r.settle_30d_amount):0,'整体展示次数':num(r.show_count),'整体点击次数':num(r.click_count)};}
 function qcPushPair(rows,row){rows.push(row);var all={};Object.keys(row).forEach(function(k){all[k]=row[k];});all['日期']='全部';rows.push(all);}
-function qcAdd(g,chan,type,period,row,sheet){var k=chan+'::'+type+'::'+period;if(!g[k])g[k]={chan:chan,type:type,period:period,sheet:sheet,rows:[]};qcPushPair(g[k].rows,row);}
-function qianchuanPayloads(bundle,name){var facts=(bundle&&bundle.facts)||{};var g={};(facts.product_daily||[]).forEach(function(r){var d=qcDate(r.date);if(!/^\d{8}$/.test(d))return;var row=qcMetricRow(r,d),pid=cleanApiText(r.product_id||r.qianchuan_product_id);row['商品ID']=pid;row['商品名称']=normTouliuProductName(r.product_name,pid)||'未识别商品';qcAdd(g,qcChan(r),'prod',periodOf(d),row,'千川API商品成交');});(facts.material_daily||[]).forEach(function(r){var d=qcDate(r.date);if(!/^\d{8}$/.test(d))return;var mt=S(r.material_type).toLowerCase(),type=(mt==='image')?'car':'video';var row=qcMetricRow(r,d);row['素材ID']=S(r.material_id)||S(r.ad_id)||S(r.material_name)||'未识别素材';row['素材创建时间']=S(r.material_upload_time);if(type==='car'){row['图片名称']=S(r.material_name)||row['素材ID'];}else{row['素材视频名称']=S(r.material_name)||row['素材ID'];row['视频完播率']=num(r.video_finish_rate);row['3秒播放率']=0;}qcAdd(g,qcChan(r),type,periodOf(d),row,type==='car'?'千川API车图素材':'千川API视频素材');});return Object.keys(g).sort().map(function(k){var x=g[k],s={};s[x.sheet]=x.rows;return {key:'tlapi::'+x.chan+'::'+x.type+'::'+x.period,payload:{sheets:s,_tl:{chan:x.chan,type:x.type,period:x.period,source:'qianchuan_api',file:name||''}}};});}
+function qcSheet(type){return type==='prod'?'千川API商品成交':(type==='car'?'千川API车图素材':'千川API视频素材');}
+function qcEnsure(g,chan,type,period,sheet){var k=chan+'::'+type+'::'+period;if(!g[k])g[k]={chan:chan,type:type,period:period,sheet:sheet||qcSheet(type),rows:[]};return g[k];}
+function qcAdd(g,chan,type,period,row,sheet){qcEnsure(g,chan,type,period,sheet).rows.push(row);}
+function qcCopyIdentity(row,r){
+  var fields=[
+    ['first_layer_identity','身份一级'],['identity','身份'],['evidence_level','证据级别'],
+    ['classification_basis','判定依据'],['bridge_status','桥接状态'],['bridge_method','桥接方式'],
+    ['matched_auth_count','授权命中数'],['matched_aweme_item_ids','命中aweme_item_id'],
+    ['matched_auth_statuses','授权状态'],['platform_label','平台标签'],['material_source','素材来源'],
+    ['platform_snapshot_generated_at','平台标签快照生成时间'],['platform_snapshot_source_file','平台标签快照来源'],
+    ['platform_snapshot_source_sha256','平台标签快照哈希'],
+    ['matched_supplier_keyword','供应商关键词'],['matched_team_keyword','组名关键词'],
+    ['matched_suspicious_keyword','疑似达人关键词'],['alert_types','报警类型']
+  ];
+  fields.forEach(function(pair){var v=cleanApiText(r[pair[0]]);if(v)row[pair[1]]=v;});
+  var hv=r&&r.has_alert,hs=String(hv==null?'':hv).trim();
+  if(hv===true||/^(true|1|是|yes)$/i.test(hs)||row['报警类型'])row['身份报警']='是';
+  return row;
+}
+function qianchuanPayloads(bundle,name){
+  var facts=(bundle&&bundle.facts)||{},g={};
+  function trace(row,r){row['广告账户ID']=cleanApiText(r.advertiser_id);row['广告账户名称']=cleanApiText(r.account_name);return row;}
+  (facts.account_daily||[]).forEach(function(r){
+    var d=qcDate(r.date),chan=qcChan(r);if(!/^\d{8}$/.test(d)||!chan)return;
+    ['prod','video','car'].forEach(function(type){qcEnsure(g,chan,type,'rng'+d+'_'+d,qcSheet(type));});
+  });
+  (facts.product_daily||[]).forEach(function(r){
+    var d=qcDate(r.date),chan=qcChan(r);if(!/^\d{8}$/.test(d)||!chan)return;
+    var row=trace(qcMetricRow(r,d),r),pid=cleanApiText(r.product_id||r.qianchuan_product_id);
+    row['商品ID']=pid;row['商品名称']=normTouliuProductName(r.product_name,pid)||'未识别商品';
+    qcAdd(g,chan,'prod','rng'+d+'_'+d,row,'千川API商品成交');
+  });
+  (facts.material_daily||[]).forEach(function(r){
+    var d=qcDate(r.date),chan=qcChan(r);if(!/^\d{8}$/.test(d)||!chan)return;
+    var mt=S(r.material_type).toLowerCase(),type=(mt==='image')?'car':'video';
+    var row=trace(qcMetricRow(r,d),r);
+    row['素材ID']=S(r.material_id)||S(r.ad_id)||S(r.material_name)||'未识别素材';
+    row['素材创建时间']=S(r.material_upload_time);
+    row['30日结算已返回']=qcHas(r,'settle_30d_amount')?'是':'否';
+    if(type==='car'){
+      row['图片名称']=S(r.material_name)||row['素材ID'];
+    }else{
+      row['素材视频名称']=S(r.material_name)||row['素材ID'];
+      row['视频完播率']=num(r.video_finish_rate);
+      if(qcHas(r,'video_3s_rate'))row['3秒播放率']=num(r.video_3s_rate);
+      qcCopyIdentity(row,r);
+    }
+    qcAdd(g,chan,type,'rng'+d+'_'+d,row,qcSheet(type));
+  });
+  return Object.keys(g).sort().map(function(k){
+    var x=g[k],s={};s[x.sheet]=x.rows;
+    return {key:'tlapi::'+x.chan+'::'+x.type+'::'+x.period,payload:{sheets:s,_tl:{chan:x.chan,type:x.type,period:x.period,start:x.period.slice(3,11),end:x.period.slice(12,20),scope:cleanApiText(bundle&&bundle.scope),source:'qianchuan_api',source_window:(bundle&&bundle.window)||{},file:name||''}}};
+  });
+}
 function buildTouliu(b,D){
   function metricRows(rows){rows=rows||[];var dated=rows.filter(function(r){return !!gyDate(r['日期']);});return dated.length?dated:rows.filter(function(r){return S(r['日期'])==='全部'||!S(r['日期']);});}
   var prodAll=metricRows(b.prod);
   var pmap={},cost=0,gmv=0,ord=0,net=0,s7=0,s14=0,s30=0;
   prodAll.forEach(function(r){var c=tlnum(r['整体消耗']),g=tlnum(r['整体成交金额']),oo=tlnum(r['整体成交订单数']);var nm=normTouliuProductName(r['商品名称'],r['商品ID']||r['商品编码']);if(!nm&&!(c||g||oo))return;if(!nm)nm='未识别商品';if(!pmap[nm])pmap[nm]={n:nm,cost:0,gmv:0,ord:0,exp:0,click:0,s30:0};var p=pmap[nm];p.cost+=c;p.gmv+=g;p.ord+=oo;p.exp+=tlnum(r['整体展示次数']);p.click+=tlnum(r['整体点击次数']);p.s30+=tlnum(r['30日结算金额']);cost+=c;gmv+=g;ord+=oo;net+=tlnum(r['净成交金额']);s7+=tlnum(r['7日结算金额']);s14+=tlnum(r['14日结算金额']);s30+=tlnum(r['30日结算金额']);});
   var products=Object.keys(pmap).map(function(k){var p=pmap[k];return {n:p.n,cost:p.cost,gmv:p.gmv,ord:p.ord,cpa:p.ord?p.cost/p.ord:0,ctr:p.exp?p.click/p.exp*100:0,cvr:p.click?p.ord/p.click*100:0,payRoi:p.cost?p.gmv/p.cost:0,roi30:p.cost?p.s30/p.cost:0,aov:p.ord?p.gmv/p.ord:0};}).sort(function(a,b){return b.cost-a.cost;});
-  var videoCost=0,aigcCost=0;var vmap={};metricRows(b.video).filter(function(r){return tlnum(r['整体消耗'])>0;}).forEach(function(r){var c=tlnum(r['整体消耗']);if(isAigc(r['素材视频名称'])){aigcCost+=c;return;}videoCost+=c;var id=S(r['素材ID']);if(!vmap[id])vmap[id]={id:id,n:S(r['素材视频名称']).replace(/\s+/g,' ').trim(),cost:0,gmv:0,exp:0,click:0,ord:0,s30:0,snet:0,fw:0,pw:0};var v=vmap[id];v.cost+=c;v.gmv+=tlnum(r['整体成交金额']);v.exp+=tlnum(r['整体展示次数']);v.click+=tlnum(r['整体点击次数']);v.ord+=tlnum(r['整体成交订单数']);v.s30+=tlnum(r['30日结算金额']);v.snet+=tlnum(r['净成交金额']);v.fw+=tlnum(r['视频完播率'])*c;v.pw+=tlnum(r['3秒播放率'])*c;});
-  var videos=Object.keys(vmap).map(function(k){var v=vmap[k];return {id:v.id,n:v.n,cost:v.cost,payRoi:v.cost?v.gmv/v.cost:0,roi30:v.cost?v.s30/v.cost:0,finish:v.cost?v.fw/v.cost:0,p3:v.cost?v.pw/v.cost:0,ctr:v.exp?v.click/v.exp*100:0,cvr:v.click?v.ord/v.click*100:0,netRoi:v.cost?v.snet/v.cost:0};}).sort(function(a,b){return b.cost-a.cost;});
-  var vtot=videos.reduce(function(s,v){return s+v.cost;},0);var low=videos.filter(function(v){return v.payRoi<1.2;}).reduce(function(s,v){return s+v.cost;},0);
+  function idTruthy(v){return v===true||/^(true|1|是|yes)$/i.test(S(v));}
+  function addVAlert(v,code){if(code&&v.alertTypes.indexOf(code)<0)v.alertTypes.push(code);}
+  function mergeVIdentity(v,key,value,label){
+    value=S(value).trim();if(!value)return;
+    if(!v[key])v[key]=value;
+    else if(v[key]!==value){if(v.identityMismatchFields.indexOf(label)<0)v.identityMismatchFields.push(label);addVAlert(v,'identity_dimension_mismatch');}
+  }
+  function splitVAlerts(v){return S(v).split(/[|｜,，;；]+/).map(function(x){return x.trim();}).filter(Boolean);}
+  var videoCost=0,aigcCost=0,vmap={};
+  metricRows(b.video).forEach(function(r){
+    var c=tlnum(r['整体消耗']),nm=S(r['素材视频名称']).replace(/\s+/g,' ').trim();
+    var id=S(r['素材ID'])||nm||'未识别素材',aigc=isAigc(nm);
+    if(c>0){if(aigc)aigcCost+=c;else videoCost+=c;}
+    if(!vmap[id])vmap[id]={id:id,n:nm,cost:0,gmv:0,exp:0,click:0,ord:0,s30:0,snet:0,fw:0,pw:0,pc:0,rowCount:0,s30CoveredRows:0,isAigc:false,firstLayerIdentity:'',identity:'',evidenceLevel:'',classificationBasis:'',bridgeStatus:'',bridgeMethod:'',platformLabel:'',materialSource:'',platformSnapshotGeneratedAt:'',platformSnapshotSourceFile:'',platformSnapshotSourceSha256:'',alertTypes:[],identityMismatchFields:[],hasIdentityLayer:false};
+    var v=vmap[id];if(!v.n&&nm)v.n=nm;v.isAigc=v.isAigc||aigc;v.rowCount++;
+    v.cost+=c;v.gmv+=tlnum(r['整体成交金额']);v.exp+=tlnum(r['整体展示次数']);v.click+=tlnum(r['整体点击次数']);v.ord+=tlnum(r['整体成交订单数']);v.s30+=tlnum(r['30日结算金额']);v.snet+=tlnum(r['净成交金额']);v.fw+=tlnum(r['视频完播率'])*c;
+    if(Object.prototype.hasOwnProperty.call(r,'3秒播放率')&&S(r['3秒播放率'])!==''){v.pw+=tlnum(r['3秒播放率'])*c;v.pc+=c;}
+    var coverMark=S(r['30日结算已返回']).trim().toLowerCase();
+    var covered30=coverMark?(/^(是|true|1|yes)$/.test(coverMark)):(Object.prototype.hasOwnProperty.call(r,'30日结算金额')&&S(r['30日结算金额'])!=='');
+    if(covered30)v.s30CoveredRows++;
+    var rowHasIdentity=!!(S(r['身份一级'])||S(r['身份'])||S(r['证据级别'])||S(r['判定依据'])||S(r['桥接状态'])||S(r['平台标签'])||S(r['素材来源']));
+    v.hasIdentityLayer=v.hasIdentityLayer||rowHasIdentity;
+    mergeVIdentity(v,'firstLayerIdentity',r['身份一级'],'身份一级');
+    mergeVIdentity(v,'identity',r['身份'],'身份');
+    mergeVIdentity(v,'evidenceLevel',r['证据级别'],'证据级别');
+    mergeVIdentity(v,'classificationBasis',r['判定依据'],'判定依据');
+    mergeVIdentity(v,'bridgeStatus',r['桥接状态'],'桥接状态');
+    mergeVIdentity(v,'bridgeMethod',r['桥接方式'],'桥接方式');
+    mergeVIdentity(v,'platformLabel',r['平台标签'],'平台标签');
+    mergeVIdentity(v,'materialSource',r['素材来源'],'素材来源');
+    mergeVIdentity(v,'platformSnapshotGeneratedAt',r['平台标签快照生成时间'],'平台标签快照生成时间');
+    mergeVIdentity(v,'platformSnapshotSourceFile',r['平台标签快照来源'],'平台标签快照来源');
+    mergeVIdentity(v,'platformSnapshotSourceSha256',r['平台标签快照哈希'],'平台标签快照哈希');
+    splitVAlerts(r['报警类型']).forEach(function(code){addVAlert(v,code);});
+    if(idTruthy(r['身份报警'])){
+      var pl=S(r['平台标签']),fl=S(r['身份一级']),sus=S(r['疑似达人关键词']),bs=S(r['桥接状态']);
+      if((fl==='达人'&&pl.indexOf('自制')>=0)||(fl==='自制'&&pl.indexOf('达人')>=0))addVAlert(v,'platform_label_conflict');
+      else if(sus&&bs!=='matched_unique')addVAlert(v,'suspicious_creator_name_unbridged');
+      else addVAlert(v,'identity_alert');
+    }
+  });
+  var allowedIdentity={'达人':1,'外部':1,'一组':1,'二组':1,'待归组':1};
+  var videos=Object.keys(vmap).map(function(k){
+    var v=vmap[k];
+    if(!v.hasIdentityLayer)addVAlert(v,'identity_dimension_missing');
+    if(!allowedIdentity[v.identity]){if(v.identity)addVAlert(v,'identity_value_invalid');v.identity='待归组';}
+    if(!v.firstLayerIdentity)v.firstLayerIdentity=v.hasIdentityLayer?(v.identity==='达人'?'达人':'自制'):'待核';
+    if((v.firstLayerIdentity==='达人')!==(v.identity==='达人'))addVAlert(v,'identity_dimension_mismatch');
+    if(!v.evidenceLevel)v.evidenceLevel='规则推断';
+    if(!v.classificationBasis)v.classificationBasis=v.hasIdentityLayer?'未提供判定依据':'身份层字段缺失，待重新同步';
+    return {id:v.id,n:v.n||v.id,cost:v.cost,gmv:v.gmv,ord:v.ord,s30:v.s30,payRoi:v.cost?v.gmv/v.cost:0,roi30:v.cost?v.s30/v.cost:0,finish:v.cost?v.fw/v.cost:0,p3:v.pc?v.pw/v.pc:null,ctr:v.exp?v.click/v.exp*100:0,cvr:v.click?v.ord/v.click*100:0,netRoi:v.cost?v.snet/v.cost:0,rowCount:v.rowCount,s30CoveredRows:v.s30CoveredRows,s30Coverage:v.rowCount?v.s30CoveredRows/v.rowCount:0,isAigc:v.isAigc,firstLayerIdentity:v.firstLayerIdentity,identity:v.identity,evidenceLevel:v.evidenceLevel,classificationBasis:v.classificationBasis,bridgeStatus:v.bridgeStatus,bridgeMethod:v.bridgeMethod,platformLabel:v.platformLabel,materialSource:v.materialSource,platformSnapshotGeneratedAt:v.platformSnapshotGeneratedAt,platformSnapshotSourceFile:v.platformSnapshotSourceFile,platformSnapshotSourceSha256:v.platformSnapshotSourceSha256,hasAlert:v.alertTypes.length>0,alertTypes:v.alertTypes,identityMismatchFields:v.identityMismatchFields};
+  }).sort(function(a,b){return b.cost-a.cost;});
+  var actionableVideos=videos.filter(function(v){return v.cost>0&&!v.isAigc;});
+  var vtot=actionableVideos.reduce(function(s,v){return s+v.cost;},0);var low=actionableVideos.filter(function(v){return v.payRoi<1.2;}).reduce(function(s,v){return s+v.cost;},0);
   var dset={};(b.prod||[]).forEach(function(r){var d=gyDate(r['日期']);if(d)dset[d]=1;});
-  var hasEng=videos.some(function(v){return v.finish>0||v.p3>0;});var hasSettle=videos.some(function(v){return v.roi30>0;});var dmap={};metricRows(b.daren).filter(function(r){return tlnum(r['整体消耗'])>0;}).forEach(function(r){var nm=S(r['抖音号名称'])||S(r['抖音号ID']);if(!dmap[nm])dmap[nm]={n:nm,cost:0,gmv:0,ord:0,s30:0};var dd=dmap[nm];dd.cost+=tlnum(r['整体消耗']);dd.gmv+=tlnum(r['整体成交金额']);dd.ord+=tlnum(r['整体成交订单数']);dd.s30+=tlnum(r['30日结算金额']);});var darens=Object.keys(dmap).map(function(k){var d=dmap[k];return {n:d.n,cost:d.cost,gmv:d.gmv,ord:d.ord,payRoi:d.cost?d.gmv/d.cost:0,roi30:d.cost?d.s30/d.cost:0,cpa:d.ord?d.cost/d.ord:0,aov:d.ord?d.gmv/d.ord:0};}).sort(function(a,b){return b.cost-a.cost;});
+  var hasEng=actionableVideos.some(function(v){return v.finish>0||v.p3!=null;});var hasSettle=actionableVideos.some(function(v){return v.roi30>0;});var dmap={};metricRows(b.daren).filter(function(r){return tlnum(r['整体消耗'])>0;}).forEach(function(r){var nm=S(r['抖音号名称'])||S(r['抖音号ID']);if(!dmap[nm])dmap[nm]={n:nm,cost:0,gmv:0,ord:0,s30:0};var dd=dmap[nm];dd.cost+=tlnum(r['整体消耗']);dd.gmv+=tlnum(r['整体成交金额']);dd.ord+=tlnum(r['整体成交订单数']);dd.s30+=tlnum(r['30日结算金额']);});var darens=Object.keys(dmap).map(function(k){var d=dmap[k];return {n:d.n,cost:d.cost,gmv:d.gmv,ord:d.ord,payRoi:d.cost?d.gmv/d.cost:0,roi30:d.cost?d.s30/d.cost:0,cpa:d.ord?d.cost/d.ord:0,aov:d.ord?d.gmv/d.ord:0};}).sort(function(a,b){return b.cost-a.cost;});
   var carRows=metricRows(b.car);var carCost=carRows.reduce(function(ss,r){return ss+tlnum(r['整体消耗']);},0);
   var cmap={};carRows.filter(function(r){return tlnum(r['整体消耗'])>0;}).forEach(function(r){var id=S(r['素材ID']);if(!cmap[id])cmap[id]={id:id,cost:0,gmv:0,exp:0,click:0,ord:0,s30:0};var cc=cmap[id];var x=tlnum(r['整体消耗']);cc.cost+=x;cc.gmv+=tlnum(r['整体成交金额']);cc.exp+=tlnum(r['整体展示次数']);cc.click+=tlnum(r['整体点击次数']);cc.ord+=tlnum(r['整体成交订单数']);cc.s30+=tlnum(r['30日结算金额']);});
   var cars=Object.keys(cmap).map(function(k){var c=cmap[k];return {id:c.id,cost:c.cost,payRoi:c.cost?c.gmv/c.cost:0,roi30:c.cost?c.s30/c.cost:0,ctr:c.exp?c.click/c.exp*100:0,cvr:c.click?c.ord/c.click*100:0};}).sort(function(a,b){return b.cost-a.cost;});
   var present={prod:(b.prod||[]).length>0,video:(b.video||[]).length>0,car:(b.car||[]).length>0,daren:(b.daren||[]).length>0};var matCost=videoCost+aigcCost+carCost;var darenCost=metricRows(b.daren).reduce(function(ss,r){return ss+tlnum(r['整体消耗']);},0);
-  return {cost:cost,gmv:gmv,ord:ord,net:net,s7:s7,s14:s14,s30:s30,products:products,videos:videos,vtot:vtot,lowShare:vtot?low/vtot:0,carCost:carCost,cars:cars,videoCost:videoCost,aigcCost:aigcCost,darens:darens,hasEng:hasEng,hasSettle:hasSettle,present:present,matCost:matCost,darenCost:darenCost,dates:Object.keys(dset)};
+  return {cost:cost,gmv:gmv,ord:ord,net:net,s7:s7,s14:s14,s30:s30,products:products,videos:videos,vtot:vtot,lowShare:vtot?low/vtot:0,carCost:carCost,cars:cars,videoCost:videoCost,aigcCost:aigcCost,darens:darens,hasEng:hasEng,hasSettle:hasSettle,present:present,matCost:matCost,darenCost:darenCost,dates:Object.keys(dset),identityIssueCount:videos.filter(function(v){return v.hasAlert;}).length};
 }
 function detectKey(sheets){
   if(sheets['成交概览']||sheets['自营成交']||sheets['账号构成']){var ov=sheets['成交概览']||sheets['自营成交']||[];var dt=ov.length?gyDate(ov[0]['日期']):'';return (dt?periodOf(dt):'000000_wk00000000')+'::luopan';}
@@ -425,7 +555,8 @@ function detectKey(sheets){
 }
 /* 只保留需要的sheet和列，压缩体积 */
 var KEEP_SHEETS=['成交概览','自营成交','合作成交','账号构成'];
-var KEEP_COLS={'日期':1,'投放时段':1,'载体类型':1,'成交金额':1,'净成交金额':1,'退款金额(支付时间)':1,'退款订单数(支付时间)':1,'退款率(支付时间)':1,'成交订单数':1,'成交人数':1,'客单价':1,'成交件数':1,'用户支付金额':1,'平台补贴金额':1,'商品曝光次数':1,'商品点击次数':1,'商品曝光-点击转化率(次数)':1,'商品点击-成交转化率(次数)':1,'千次曝光用户支付金额':1,'账号名称':1,'账号类型':1,'自营/合作':1,'商品名称':1,'商品编码':1,'成交退款金额':1,'自卖/合作':1,'载体':1,'统计周期':1,'素材ID':1,'素材视频名称':1,'素材创建时间':1,'图片名称':1,'整体消耗':1,'整体成交金额':1,'整体成交订单数':1,'整体支付ROI':1,'整体展示次数':1,'整体点击次数':1,'30日结算金额':1,'7日结算金额':1,'14日结算金额':1,'视频完播率':1,'3秒播放率':1,'抖音号名称':1,'抖音号ID':1};
+var KEEP_COLS={'日期':1,'投放时段':1,'载体类型':1,'成交金额':1,'净成交金额':1,'退款金额(支付时间)':1,'退款订单数(支付时间)':1,'退款率(支付时间)':1,'成交订单数':1,'成交人数':1,'客单价':1,'成交件数':1,'用户支付金额':1,'平台补贴金额':1,'商品曝光次数':1,'商品点击次数':1,'商品曝光-点击转化率(次数)':1,'商品点击-成交转化率(次数)':1,'千次曝光用户支付金额':1,'账号名称':1,'账号类型':1,'自营/合作':1,'商品名称':1,'商品编码':1,'商品ID':1,'成交退款金额':1,'自卖/合作':1,'载体':1,'统计周期':1,'素材ID':1,'素材视频名称':1,'素材创建时间':1,'图片名称':1,'整体消耗':1,'整体成交金额':1,'整体成交订单数':1,'整体支付ROI':1,'整体展示次数':1,'整体点击次数':1,'30日结算金额':1,'7日结算金额':1,'14日结算金额':1,'视频完播率':1,'3秒播放率':1,'抖音号名称':1,'抖音号ID':1};
+['广告账户ID','广告账户名称','30日结算已返回','身份一级','身份','证据级别','判定依据','桥接状态','桥接方式','授权命中数','命中aweme_item_id','授权状态','平台标签','素材来源','平台标签快照生成时间','平台标签快照来源','平台标签快照哈希','供应商关键词','组名关键词','疑似达人关键词','身份报警','报警类型'].forEach(function(k){KEEP_COLS[k]=1;});
 function trimRows(rows){return (rows||[]).map(function(r){var o={};for(var k in r){if(KEEP_COLS[k])o[k]=r[k];}return o;});}
 function trim(sheets){
   if(KEEP_SHEETS.some(function(k){return sheets[k];})){var o={};KEEP_SHEETS.forEach(function(k){if(sheets[k])o[k]=trimRows(sheets[k]);});return o;}
@@ -440,7 +571,7 @@ var COL={zibo:'#2f6fd6',dabo:'#8e44ad',zy_shelf:'#2e8b57',dy_short:'#d97706'};
 var DEF={zibo:400000,dabo:170000,zy_shelf:70000,dy_short:50000};
 var TGT_KEY='gy_tgts_v1';function loadTgts(){try{var o=JSON.parse(localStorage.getItem(TGT_KEY));return (o&&typeof o==='object')?o:{};}catch(e){return {};}}var tgtsAll=loadTgts();function saveTgts(){try{localStorage.setItem(TGT_KEY,JSON.stringify(tgtsAll));}catch(e){}}function monthTgts(mo){mo=(mo&&mo!=='all'&&/^\d{6}$/.test(mo))?mo:'202606';if(!tgtsAll[mo])tgtsAll[mo]=Object.assign({},DEF);return tgtsAll[mo];}var tgtEditMonth=null;function setTgtMonth(mo){tgtEditMonth=mo;buildTgt();}
 var per='all',ch='all',accTab='zy',tgts=Object.assign({},DEF),role='boss',curMonth=null,curRoom=null,customRange={start:'',end:''};var liveHostSort={k:'gmv',dir:-1};function liveSortHosts(k){if(liveHostSort.k===k)liveHostSort.dir*=-1;else liveHostSort={k:k,dir:(k==='host'?1:-1)};renderLive();}var liveMxMetric='avg';function liveSetMx(m){liveMxMetric=m;renderLive();}var liveMxSort={k:'total',dir:-1};function liveMxSortBy(k){if(liveMxSort.k===k)liveMxSort.dir*=-1;else liveMxSort={k:k,dir:-1};renderLive();}var liveSesSort={k:'date',dir:-1};function liveSesSortBy(k){if(liveSesSort.k===k)liveSesSort.dir*=-1;else liveSesSort={k:k,dir:(k==='host'||k==='kong'?1:-1)};renderLive();}var danmuSel={kind:'',key:'',sub:''};function dmSel(kind,key){if(danmuSel.kind===kind&&danmuSel.key===key){danmuSel={kind:'',key:'',sub:''};}else{danmuSel={kind:kind,key:key,sub:''};}renderLive();}function dmSelSub(x){danmuSel.sub=(danmuSel.sub===x?'':x);renderLive();}
-var tlSV={k:'cost',d:-1},tlSP={k:'cost',d:-1},tlSC={k:'cost',d:-1},tlSD={k:'cost',d:-1};
+var tlSV={k:'cost',d:-1},tlSP={k:'cost',d:-1},tlSC={k:'cost',d:-1},tlSD={k:'cost',d:-1},tlIdentityFilter='all';
 var D=null;
 var ROLES=[{id:'boss',label:'📊 全域销售',short:'销售'},{id:'ops',label:'🛒 电商',short:'电商'},{id:'ad',label:'💰 投流',short:'投流'},{id:'content',label:'📝 内容策略',short:'内容'}];
 var CONCL_ROLES=[{id:'invest',label:'投流结论',cls:'tl',color:'#a9760a'},{id:'content',label:'内容结论',cls:'nr',color:'#2f6fd6'},{id:'ops',label:'运营结论',cls:'yy',color:'#8e44ad'},{id:'data',label:'全域结论',cls:'qy',color:'#2e8b57'}];
@@ -890,6 +1021,33 @@ function renderTouliu(){
   h+='<div class="tlk" style="margin-bottom:6px">📉 ROI 结算衰减（退款侵蚀）—— 别看投放，看结算</div><div style="display:flex;gap:5px;margin-bottom:12px">';
   steps.forEach(function(st,i){h+=(i?'<div style="align-self:center;color:#ddd0b6">›</div>':'')+'<div style="flex:1;text-align:center;background:#ffffff;border:1px solid #ece2cf;border-radius:7px;padding:8px 2px"><div class="tls">'+st[0]+'结算</div><div style="font-size:17px;font-weight:700;color:'+roiColor(st[1])+'">'+fmtRoi(st[1])+'</div></div>';});
   h+='</div>';
+  if(chan==='zy_shelf'){
+    var identityVideos=t.videos||[];
+    function idStat(rows){return rows.reduce(function(o,v){o.count++;o.cost+=v.cost;o.gmv+=v.gmv;o.s30+=v.s30;o.rows+=v.rowCount||0;o.coveredRows+=v.s30CoveredRows||0;return o;},{count:0,cost:0,gmv:0,s30:0,rows:0,coveredRows:0});}
+    function idShare(v,total){return total?v/total*100:0;}
+    function idRoi(v){return v.cost?(v.gmv/v.cost).toFixed(2):'—';}
+    function idRoi30(v){if(!v.rows||v.coveredRows<v.rows)return '—';return v.cost?(v.s30/v.cost).toFixed(2):'—';}
+    function idCoverage(v){return v.rows?Math.round(v.coveredRows/v.rows*100):0;}
+    function idOverviewCard(label,cls,color,stat,total){
+      var cp=idShare(stat.cost,total.cost),gp=idShare(stat.gmv,total.gmv),cov=idCoverage(stat);
+      return '<div class="tl-id-card '+cls+'"><div class="tl-id-card-head"><span>'+label+'</span><span>'+stat.count+' 条</span></div><div class="tl-id-metrics">'
+        +'<div class="tl-id-metric"><span>消耗占比</span><b>'+cp.toFixed(1)+'%</b><div class="tl-id-bar"><i style="width:'+Math.min(100,cp).toFixed(1)+'%;background:'+color+'"></i></div></div>'
+        +'<div class="tl-id-metric"><span>成交占比</span><b>'+gp.toFixed(1)+'%</b><div class="tl-id-bar"><i style="width:'+Math.min(100,gp).toFixed(1)+'%;background:'+color+'"></i></div></div>'
+        +'<div class="tl-id-metric"><span>支付 ROI</span><b>'+idRoi(stat)+'</b></div>'
+        +'<div class="tl-id-metric"><span>30日 ROI</span><b>'+idRoi30(stat)+'</b><span>'+(cov===100?'覆盖完整':(cov?('仅 '+cov+'% 行返回'):'未返回'))+'</span></div>'
+        +'</div></div>';
+    }
+    var identityTotal=idStat(identityVideos),selfStat=idStat(identityVideos.filter(function(v){return v.firstLayerIdentity==='自制';})),creatorStat=idStat(identityVideos.filter(function(v){return v.firstLayerIdentity==='达人';})),unknownIdentity=identityVideos.filter(function(v){return v.firstLayerIdentity!=='自制'&&v.firstLayerIdentity!=='达人';});
+    var platformMetadataCovered=identityVideos.filter(function(v){return !!(v.platformLabel||v.materialSource);}).length,platformCovered=identityVideos.filter(function(v){return /自制|达人/.test(v.platformLabel||'');}).length,platformSource=(identityVideos.filter(function(v){return !!v.platformSnapshotSourceFile;})[0]||{}).platformSnapshotSourceFile||'',platformRange='未提供';
+    var platformRangeMatch=platformSource.match(/(\d{4}-\d{2}-\d{2}).*?(\d{4}-\d{2}-\d{2})/);if(platformRangeMatch)platformRange=platformRangeMatch[1]+'～'+platformRangeMatch[2];else{var platformGenerated=(identityVideos.filter(function(v){return !!v.platformSnapshotGeneratedAt;})[0]||{}).platformSnapshotGeneratedAt||'';if(platformGenerated)platformRange=platformGenerated.slice(0,10);}
+    h+='<section class="tl-id-overview" id="tlIdentityOverview"><div class="tl-id-overview-head"><div class="tlk" style="font-weight:700;color:#5a503e">🧬 视频素材身份总观 · 自制 vs 达人</div><div class="tl-id-overview-note">仅视频素材归因口径，含 0 消耗素材与 AIGC；成交不与商品/账户层混算<br>五个身份档加总=“全部”；平台标签仅校验，不覆盖 STAR 硬证据</div></div><div class="tl-id-compare">'
+      +idOverviewCard('自制内容','self','#2f6fd6',selfStat,identityTotal)
+      +idOverviewCard('达人授权','creator','#d97706',creatorStat,identityTotal)
+      +'</div>'
+      +'<div class="tl-id-snapshot">平台身份标签校验：'+platformCovered+'/'+identityVideos.length+' 条；来源/标签元数据：'+platformMetadataCovered+'/'+identityVideos.length+' 条 · 快照周期 '+escHtml(platformRange)+(platformCovered<identityVideos.length?' · 未覆盖素材仍按 STAR 规则判断，不冒充已完成平台校验':'')+'</div>'
+      +(unknownIdentity.length?'<div class="tl-id-warning">⚠ 有 '+unknownIdentity.length+' 条素材缺少可核验的第一层身份，未计入上方两类占比；请重新同步身份层。</div>':'')
+      +'</section>';
+  }
   function pdiag(p){if(p.roi30<1){if(p.cvr<2.5)return ['转化+退款双弱','#c0392b'];return ['退款拖累','#b07d12'];}if(p.ctr<4.5)return ['流量偏弱·靠转化撑','#b07d12'];return ['健康','#2e8b57'];}
   function arP(k){return tlSP.k===k?(tlSP.d<0?' \u25be':' \u25b4'):' \u2195';}
   t.products.sort(function(a,b){return ((a[tlSP.k]||0)-(b[tlSP.k]||0))*tlSP.d;});
@@ -900,16 +1058,46 @@ function renderTouliu(){
   function dDiff(a,b){var da=new Date(+a.slice(0,4),+a.slice(4,6)-1,+a.slice(6)),db=new Date(+b.slice(0,4),+b.slice(4,6)-1,+b.slice(6));return Math.round((db-da)/86400000);}
   var refWeek=isWeekPeriod(per)?per:((sd[sd.length-1]||'')?periodOf(sd[sd.length-1]):'');
   t.videos.forEach(function(v){var m=(D.tlMeta||{})[v.id]||{};v.days=(m.created&&m.bo)?dDiff(m.created,m.bo):null;var boW=m.bo?periodOf(m.bo):'';v.isNew=(boW&&boW===refWeek)?1:0;v.stage=tlStage(m,D._tlLatest);v.settle=(t.hasSettle?v.roi30:(v.netRoi||0));});
-  var vt=t.videos.reduce(function(ss,v){return ss+v.cost;},0)||1;
-  var avgCtr=t.videos.reduce(function(ss,v){return ss+v.ctr*v.cost;},0)/vt;
-  var avgCvr=t.videos.reduce(function(ss,v){return ss+v.cvr*v.cost;},0)/vt;
+  var diagnosticVideos=t.videos.filter(function(v){return v.cost>0&&!v.isAigc;});
+  var vt=diagnosticVideos.reduce(function(ss,v){return ss+v.cost;},0)||1;
+  var avgCtr=diagnosticVideos.reduce(function(ss,v){return ss+v.ctr*v.cost;},0)/vt;
+  var avgCvr=diagnosticVideos.reduce(function(ss,v){return ss+v.cvr*v.cost;},0)/vt;
   function vdiag(v){if(v.settle<0.6)return ['换素材/关停','#c0392b'];if(v.ctr>avgCtr*1.5&&v.cvr>=avgCvr&&v.settle>=1)return ['可追投放大','#2e8b57'];if(v.ctr>avgCtr&&v.cvr<avgCvr)return ['量好转化差·优化承接','#b07d12'];if(v.settle>=1)return ['稳·维持','#8a7d66'];return ['观察','#8a7d66'];}
   function arV(k){return tlSV.k===k?(tlSV.d<0?' \u25be':' \u25b4'):' \u2195';}
-  t.videos.sort(function(a,b){return ((a[tlSV.k]||0)-(b[tlSV.k]||0))*tlSV.d;});
+  var sortedVideos=t.videos.slice().sort(function(a,b){return ((a[tlSV.k]||0)-(b[tlSV.k]||0))*tlSV.d;});
   h+='<div class="tlk" style="margin:12px 0 6px">📐 推商品户 · 素材类型消耗</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px"><div class="inv-kpi-cell"><div class="tlk">📹 视频（可追投）</div><div class="tlv">'+fmtM(t.videoCost)+'</div><div class="tls">'+(t.cost?Math.round(t.videoCost/t.cost*100):0)+'% 占消耗</div></div><div class="inv-kpi-cell"><div class="tlk">🛒 商品卡（不可追投）</div><div class="tlv">'+fmtM(t.carCost)+'</div><div class="tls">'+(t.cost?Math.round(t.carCost/t.cost*100):0)+'% 占消耗</div></div><div class="inv-kpi-cell"><div class="tlk">🤖 AIGC（不可追投）</div><div class="tlv">'+fmtM(t.aigcCost)+'</div><div class="tls">'+(t.cost?Math.round(t.aigcCost/t.cost*100):0)+'% 占消耗</div></div></div>';
-  h+='<div class="tlk" style="margin:12px 0 6px">🎬 视频素材（可追投）<span style="color:#b3a890;margin-left:8px">追投止损:追投后ROI降&gt;20%即停 · \ud83c\udd95=本期新跑出(首日消耗&gt;500)</span></div><div style="overflow-x:auto"><table class="inv-tbl"><tr><th>素材ID</th><th onclick="tlSortV(\'cost\')" style="cursor:pointer">消耗'+arV('cost')+'</th><th onclick="tlSortV(\'days\')" style="cursor:pointer">上线\u2192跑出'+arV('days')+'</th><th onclick="tlSortV(\'p3\')" style="cursor:pointer">3秒'+arV('p3')+'</th><th onclick="tlSortV(\'finish\')" style="cursor:pointer">完播'+arV('finish')+'</th><th onclick="tlSortV(\'ctr\')" style="cursor:pointer">CTR'+arV('ctr')+'</th><th onclick="tlSortV(\'cvr\')" style="cursor:pointer">转化率'+arV('cvr')+'</th><th onclick="tlSortV(\'payRoi\')" style="cursor:pointer">支付ROI'+arV('payRoi')+'</th><th onclick="tlSortV(\'roi30\')" style="cursor:pointer">'+(t.hasSettle?'30日ROI':'净ROI')+arV('roi30')+'</th><th>阶段</th><th>诊断</th></tr>';
-  t.videos.slice(0,12).forEach(function(v){var vd=vdiag(v);var dtxt=(v.days==null)?'\u2014':(v.days+'天'+(v.isNew?' <span style=\"color:#a9760a\">\ud83c\udd95</span>':''));h+='<tr><td style="font-family:monospace;font-size:10px;color:#8a7d66">'+escHtml(v.id||'')+'</td><td>'+fmtM(v.cost)+'</td><td>'+dtxt+'</td><td>'+(t.hasEng?v.p3.toFixed(0)+'%':'—')+'</td><td>'+(t.hasEng?v.finish.toFixed(1)+'%':'—')+'</td><td>'+v.ctr.toFixed(1)+'%</td><td>'+v.cvr.toFixed(2)+'%</td><td style="color:'+roiColor(v.payRoi)+'">'+fmtRoi(v.payRoi)+'</td><td style="color:'+roiColor(v.settle)+';font-weight:600">'+fmtRoi(v.settle)+'</td><td style="color:'+(v.stage?v.stage[1]:'#8a7d66')+'">'+(v.stage?v.stage[0]:'—')+'</td><td style="color:'+vd[1]+'">'+vd[0]+'</td></tr>';});
-  h+='</table></div>';
+  if(chan==='zy_shelf'){
+    var identityOrder=[['all','全部'],['达人','达人'],['外部','外部'],['一组','一组'],['二组','二组'],['待归组','待归组']];
+    if(!identityOrder.some(function(x){return x[0]===tlIdentityFilter;}))tlIdentityFilter='all';
+    function idMoney(v){return '¥'+(+v||0).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});}
+    function idRows(key){return key==='all'?sortedVideos:sortedVideos.filter(function(v){return v.identity===key;});}
+    function idBucket(key){return idRows(key).reduce(function(o,v){o.count++;o.cost+=v.cost;return o;},{count:0,cost:0});}
+    function idBadgeCls(v){return v==='达人'?'creator':v==='外部'?'external':v==='一组'?'team1':v==='二组'?'team2':'pending';}
+    function v30Text(v){if(!v.rowCount||!v.s30CoveredRows)return '—（未返回）';if(v.s30CoveredRows<v.rowCount)return '—（覆盖 '+Math.round(v.s30Coverage*100)+'%）';return v.cost?fmtRoi(v.roi30):'—（0消耗）';}
+    var filterRows=idRows(tlIdentityFilter),filterBucket=idBucket(tlIdentityFilter);
+    h+='<div class="tlk" style="margin:12px 0 4px">🎬 视频素材身份明细 <span style="color:#b3a890;margin-left:8px">全量唯一 ID，含 0 消耗与 AIGC；“全部”不参与五身份档相加</span></div>';
+    h+='<div class="tl-id-filter-row" id="tlIdentityFilters">'+identityOrder.map(function(x){var b=idBucket(x[0]);return '<button type="button" class="tl-id-filter '+(tlIdentityFilter===x[0]?'on':'')+'" data-tl-filter="'+escHtml(x[0])+'" onclick="setTlIdentityFilter(\''+x[0]+'\')">'+x[1]+'<small>'+b.count+' 条 · '+idMoney(b.cost)+'</small></button>';}).join('')+'</div>';
+    h+='<div class="tl-id-summary" id="tlIdentityFilterSummary">当前：'+identityOrder.filter(function(x){return x[0]===tlIdentityFilter;})[0][1]+' · '+filterBucket.count+' 条素材 · 消耗 '+idMoney(filterBucket.cost)+'</div>';
+    h+='<div class="tl-id-table-wrap" id="tlIdentityTableWrap"><table class="inv-tbl" id="tlIdentityTable"><thead><tr><th>素材名称</th><th>素材ID</th><th>身份</th><th>证据</th><th onclick="tlSortV(\'cost\')" style="cursor:pointer">消耗'+arV('cost')+'</th><th>成交</th><th onclick="tlSortV(\'days\')" style="cursor:pointer">上线\u2192跑出'+arV('days')+'</th><th onclick="tlSortV(\'p3\')" style="cursor:pointer">3秒'+arV('p3')+'</th><th onclick="tlSortV(\'finish\')" style="cursor:pointer">完播'+arV('finish')+'</th><th onclick="tlSortV(\'ctr\')" style="cursor:pointer">CTR'+arV('ctr')+'</th><th onclick="tlSortV(\'cvr\')" style="cursor:pointer">转化率'+arV('cvr')+'</th><th onclick="tlSortV(\'payRoi\')" style="cursor:pointer">支付ROI'+arV('payRoi')+'</th><th onclick="tlSortV(\'roi30\')" style="cursor:pointer">30日ROI'+arV('roi30')+'</th><th>阶段</th><th>诊断</th></tr></thead><tbody>';
+    filterRows.forEach(function(v){
+      var vd=v.isAigc?['不可追投','#8a7d66']:(v.cost>0?vdiag(v):['零消耗·待观察','#8a7d66']);
+      var dtxt=(v.days==null)?'\u2014':(v.days+'天'+(v.isNew?' <span style="color:#a9760a">\ud83c\udd95</span>':''));
+      var stage=v.isAigc?['AIGC','#8a7d66']:v.stage;
+      h+='<tr data-material-id="'+escHtml(v.id||'')+'" data-identity="'+escHtml(v.identity)+'"><td class="tl-id-name" title="'+escHtml(v.n||'')+'">'+escHtml(v.n||'')+'</td><td style="font-family:monospace;font-size:10px;color:#8a7d66">'+escHtml(v.id||'')+'</td><td><span class="tl-id-badge '+idBadgeCls(v.identity)+'">'+escHtml(v.identity)+'</span>'+(v.isAigc?' <span class="tls">AIGC</span>':'')+'</td><td title="'+escHtml(v.classificationBasis||'')+'">'+escHtml(v.evidenceLevel||'—')+'</td><td>'+idMoney(v.cost)+'</td><td>'+idMoney(v.gmv)+'</td><td>'+dtxt+'</td><td>'+(v.p3!=null?v.p3.toFixed(0)+'%':'—')+'</td><td>'+(t.hasEng?v.finish.toFixed(1)+'%':'—')+'</td><td>'+v.ctr.toFixed(1)+'%</td><td>'+v.cvr.toFixed(2)+'%</td><td style="color:'+(v.cost?roiColor(v.payRoi):'#b3a890')+'">'+(v.cost?fmtRoi(v.payRoi):'—')+'</td><td style="color:'+(v.s30Coverage===1&&v.cost?roiColor(v.roi30):'#b3a890')+';font-weight:600">'+v30Text(v)+'</td><td style="color:'+(stage?stage[1]:'#8a7d66')+'">'+(stage?stage[0]:'—')+'</td><td style="color:'+vd[1]+'">'+vd[0]+'</td></tr>';
+    });
+    if(!filterRows.length)h+='<tr><td colspan="15" style="text-align:center;color:#b3a890;padding:14px">该身份档暂无素材</td></tr>';
+    h+='</tbody></table></div>';
+    var alertRows=t.videos.filter(function(v){return v.hasAlert;});
+    if(alertRows.length){
+      h+='<div class="tl-id-alerts" id="tlIdentityAlerts"><details><summary>⚠️ 身份冲突 / 桥接报警 '+alertRows.length+' 条（点击查看）</summary><div class="tl-id-alert-list">'+alertRows.map(function(v){var mismatch=v.identityMismatchFields&&v.identityMismatchFields.length?(' · 不一致字段：'+v.identityMismatchFields.join('、')):'';return '<div class="tl-id-alert-item"><b>'+escHtml(v.n||v.id)+'</b> <span style="font-family:monospace">'+escHtml(v.id)+'</span><br>规则判定：'+escHtml(v.firstLayerIdentity)+' / '+escHtml(v.identity)+'（'+escHtml(v.evidenceLevel)+'） · 报警：'+escHtml((v.alertTypes||[]).join('、'))+mismatch+'<br>平台标签：'+escHtml(v.platformLabel||'—')+' · 素材来源：'+escHtml(v.materialSource||'—')+' · 桥接：'+escHtml(v.bridgeStatus||'—')+'<br>依据：'+escHtml(v.classificationBasis||'—')+'</div>';}).join('')+'</div></details></div>';
+    }else{
+      h+='<div class="tl-id-alerts" id="tlIdentityAlerts" style="border-color:#cfe2d6;background:#f7fcf8;color:#2e8b57">✓ 本周期未发现身份判定冲突或桥接报警</div>';
+    }
+  }else{
+    h+='<div class="tlk" style="margin:12px 0 6px">🎬 视频素材（可追投）<span style="color:#b3a890;margin-left:8px">追投止损:追投后ROI降&gt;20%即停 · \ud83c\udd95=本期新跑出(首日消耗&gt;500)</span></div><div style="overflow-x:auto"><table class="inv-tbl"><tr><th>素材ID</th><th onclick="tlSortV(\'cost\')" style="cursor:pointer">消耗'+arV('cost')+'</th><th onclick="tlSortV(\'days\')" style="cursor:pointer">上线\u2192跑出'+arV('days')+'</th><th onclick="tlSortV(\'p3\')" style="cursor:pointer">3秒'+arV('p3')+'</th><th onclick="tlSortV(\'finish\')" style="cursor:pointer">完播'+arV('finish')+'</th><th onclick="tlSortV(\'ctr\')" style="cursor:pointer">CTR'+arV('ctr')+'</th><th onclick="tlSortV(\'cvr\')" style="cursor:pointer">转化率'+arV('cvr')+'</th><th onclick="tlSortV(\'payRoi\')" style="cursor:pointer">支付ROI'+arV('payRoi')+'</th><th onclick="tlSortV(\'roi30\')" style="cursor:pointer">'+(t.hasSettle?'30日ROI':'净ROI')+arV('roi30')+'</th><th>阶段</th><th>诊断</th></tr>';
+    diagnosticVideos.slice().sort(function(a,b){return ((a[tlSV.k]||0)-(b[tlSV.k]||0))*tlSV.d;}).slice(0,12).forEach(function(v){var vd=vdiag(v);var dtxt=(v.days==null)?'\u2014':(v.days+'天'+(v.isNew?' <span style="color:#a9760a">\ud83c\udd95</span>':''));h+='<tr><td style="font-family:monospace;font-size:10px;color:#8a7d66">'+escHtml(v.id||'')+'</td><td>'+fmtM(v.cost)+'</td><td>'+dtxt+'</td><td>'+(v.p3!=null?v.p3.toFixed(0)+'%':'—')+'</td><td>'+(t.hasEng?v.finish.toFixed(1)+'%':'—')+'</td><td>'+v.ctr.toFixed(1)+'%</td><td>'+v.cvr.toFixed(2)+'%</td><td style="color:'+roiColor(v.payRoi)+'">'+fmtRoi(v.payRoi)+'</td><td style="color:'+roiColor(v.settle)+';font-weight:600">'+fmtRoi(v.settle)+'</td><td style="color:'+(v.stage?v.stage[1]:'#8a7d66')+'">'+(v.stage?v.stage[0]:'—')+'</td><td style="color:'+vd[1]+'">'+vd[0]+'</td></tr>';});
+    h+='</table></div>';
+  }
   if(t.cars&&t.cars.length){
     function arC(k){return tlSC.k===k?(tlSC.d<0?' \u25be':' \u25b4'):' \u2195';}
     t.cars.sort(function(a,b){return ((a[tlSC.k]||0)-(b[tlSC.k]||0))*tlSC.d;});
@@ -946,7 +1134,7 @@ function render(){
   document.getElementById('cg').innerHTML=['all'].concat(CH).map(function(c){return '<button class="btn '+(c===ch?'on':'')+'" onclick="setC(\''+c+'\')">'+NAME[c]+'</button>';}).join('');
   var activePeriod=D.periods[per]||{};document.getElementById('sub').textContent=(activePeriod.range||'')+(activePeriod.crossMonth?' · 跨月完整自然周':'')+' · 触点：'+(NAME[ch].replace(/[^一-龥]/g,'')||'全部')+' · 视图：'+(ROLES.find(function(r){return r.id===role;})||{}).short;
   var src='抖音电商罗盘成交日明细 + 商品自然日明细 + 退款分析支付日事实'+(D._qcApi?' + 千川API日报（投流模块）':'');
-  document.getElementById('srcnote').textContent='数据来源：'+src+' · 时间口径：周=完整自然周（可跨月）；月=自然月；商品成交按日累积，历史聚合快照仅作切换日前兜底 · 退款口径：退款分析表为唯一权威源，每天按订单支付日覆盖历史，净GMV=成交GMV−退款金额；商品退款按支付日+商品ID+售卖类型+原始载体严格取交集 · 已导入：'+((D.months||[]).map(function(m){var pids=m.weekPeriods||m.weeks.map(function(w){return m.key+'_'+w;});return m.label+'('+pids.map(function(pid){return periodLabel(pid)+(isCrossMonthWeek(pid)?'[跨月]':'');}).join('+')+')';}).join(' / ')||'无');
+  document.getElementById('srcnote').textContent='数据来源：'+src+' · 时间口径：周=完整自然周（可跨月）；月=自然月；商品成交按日累积，历史聚合快照仅作切换日前兜底 · 退款口径：退款分析表为唯一权威源，每天按订单支付日覆盖历史，净GMV=成交GMV−退款金额；商品退款按支付日+商品ID+售卖类型+原始载体严格取交集 · 素材身份口径（仅自营货架视频）：STAR+BY_VIDEO+VIDEO 唯一桥接=达人；未命中进入自制分组；平台标签只作最近一次素材导出快照校验，身份总观显式展示覆盖率/周期，冲突报警且不覆盖 STAR；SELF 不作为单条素材依据 · 已导入：'+((D.months||[]).map(function(m){var pids=m.weekPeriods||m.weeks.map(function(w){return m.key+'_'+w;});return m.label+'('+pids.map(function(pid){return periodLabel(pid)+(isCrossMonthWeek(pid)?'[跨月]':'');}).join('+')+')';}).join(' / ')||'无');
   renderKPI();renderMonthGoals();renderFunnel();renderGA();renderConclCards();renderTrend();renderAnom();renderMtx();renderAcc();renderPrd();renderTouliu();renderTLSum();renderDataCheck();renderLive();renderRefund();renderActions();
   applyRoleVisibility();
 }
@@ -956,6 +1144,7 @@ function tlSortV(k){if(tlSV.k===k)tlSV.d=-tlSV.d;else{tlSV.k=k;tlSV.d=-1;}render
 function tlSortP(k){if(tlSP.k===k)tlSP.d=-tlSP.d;else{tlSP.k=k;tlSP.d=-1;}render();}
 function tlSortC(k){if(tlSC.k===k)tlSC.d=-tlSC.d;else{tlSC.k=k;tlSC.d=-1;}render();}
 function tlSortD(k){if(tlSD.k===k)tlSD.d=-tlSD.d;else{tlSD.k=k;tlSD.d=-1;}render();}
+function setTlIdentityFilter(v){var ok={all:1,'达人':1,'外部':1,'一组':1,'二组':1,'待归组':1};tlIdentityFilter=ok[v]?v:'all';renderTouliu();}
 function setC(c){ch=c;if(c==='dabo'||c==='dy_short')accTab='hz';else if(c==='zibo'||c==='zy_shelf')accTab='zy';render();}
 
 /* ===== Init ===== */
