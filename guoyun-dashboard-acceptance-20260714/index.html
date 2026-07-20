@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="zh-CN"><head><base href="/"><meta name="robots" content="noindex, nofollow"><link rel="icon" href="./favicon.ico"><script id="__gySeed">window.__GY_SEED__={"gy_tgts_v1":"{\"202606\":{\"zibo\":350000,\"dabo\":520000,\"zy_shelf\":100000,\"dy_short\":50000},\"202607\":{\"zibo\":350000,\"dabo\":0,\"zy_shelf\":100000,\"dy_short\":60000}}","gy_candidate_change_kind":"feishu_live_sync_candidate","gy_candidate_base_business_sha256":"F13F0ED01F08AADB6DFEE341340753192CF5F71B11BDFAAB0872E66B28271F31","gy_imp_concl":"{}"};window.__GY_SEED_VER__="manual_20260720_171827";</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="zh-CN"><head><base href="/"><meta name="robots" content="noindex, nofollow"><link rel="icon" href="./favicon.ico"><script id="__gySeed">window.__GY_SEED__={"gy_tgts_v1":"{\"202606\":{\"zibo\":350000,\"dabo\":520000,\"zy_shelf\":100000,\"dy_short\":50000},\"202607\":{\"zibo\":350000,\"dabo\":0,\"zy_shelf\":100000,\"dy_short\":60000}}","gy_imp_concl":"{}","gy_candidate_change_kind":"feishu_live_sync_candidate","gy_candidate_base_business_sha256":"1FF40BE30B06AB4959A0A9F82E3F9A1B59BFA4249B8F26E8F9B635B35A6BFE54"};window.__GY_SEED_VER__="aweme_names_20260721_035730";</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>国韵护肤 · 电商协同看板 · 数据导入版</title>
 <script>/* SheetJS */
 /*! xlsx.js (C) 2013-present SheetJS -- http://sheetjs.com */
@@ -427,7 +427,7 @@ function cleanApiText(v){var s=S(v);return (!s||/^null$/i.test(s)||/^undefined$/
 function normTouliuProductName(name,id){var pid=cleanApiText(id),nm=cleanApiText(name);if(QC_PRODUCT_ALIAS[pid])return QC_PRODUCT_ALIAS[pid];if(QC_PRODUCT_ALIAS[nm])return QC_PRODUCT_ALIAS[nm];if(/^\d{12,}$/.test(nm))return '';if(nm.indexOf('红鹤')>=0)return '面霜正装';if(nm.indexOf('多维修护')>=0||nm.indexOf('中样')>=0||nm.indexOf('小样')>=0)return '面霜中样';if(nm.indexOf('冰感')>=0)return '冰感面膜';return nm;}
 function qcMetricRow(r,d){var cost=num(r.cost),gmv=num(r.gmv),refund=num(r.refund_1h_amount);return {'日期':d,'整体消耗':cost,'整体成交金额':gmv,'整体成交订单数':num(r.orders),'整体支付ROI':qcHas(r,'pay_roi')?num(r.pay_roi):(cost?gmv/cost:0),'净成交金额':qcHas(r,'settle_1h_amount')?num(r.settle_1h_amount):Math.max(0,gmv-refund),'7日结算金额':qcHas(r,'settle_7d_amount')?num(r.settle_7d_amount):0,'14日结算金额':qcHas(r,'settle_14d_amount')?num(r.settle_14d_amount):0,'30日结算金额':qcHas(r,'settle_30d_amount')?num(r.settle_30d_amount):0,'整体展示次数':num(r.show_count),'整体点击次数':num(r.click_count)};}
 function qcPushPair(rows,row){rows.push(row);var all={};Object.keys(row).forEach(function(k){all[k]=row[k];});all['日期']='全部';rows.push(all);}
-function qcSheet(type){return type==='prod'?'千川API商品成交':(type==='car'?'千川API车图素材':(type==='acct'?'千川API直播账户总盘':(type==='direct'?'千川API直播间画面直投':'千川API视频素材')));}
+function qcSheet(type){return type==='prod'?'千川API商品成交':(type==='car'?'千川API车图素材':(type==='daren'?'千川API抖音号':(type==='acct'?'千川API直播账户总盘':(type==='direct'?'千川API直播间画面直投':'千川API视频素材'))));}
 function qcEnsure(g,chan,type,period,sheet){var k=chan+'::'+type+'::'+period;if(!g[k])g[k]={chan:chan,type:type,period:period,sheet:sheet||qcSheet(type),rows:[]};return g[k];}
 function qcAdd(g,chan,type,period,row,sheet){qcEnsure(g,chan,type,period,sheet).rows.push(row);}
 function qcCopyIdentity(row,r){
@@ -439,56 +439,14 @@ function qcCopyIdentity(row,r){
     ['platform_snapshot_generated_at','平台标签快照生成时间'],['platform_snapshot_source_file','平台标签快照来源'],
     ['platform_snapshot_source_sha256','平台标签快照哈希'],
     ['matched_supplier_keyword','供应商关键词'],['matched_team_keyword','组名关键词'],
-    ['matched_suspicious_keyword','疑似达人关键词'],['alert_types','报警类型']
+    ['matched_suspicious_keyword','疑似达人关键词'],['title_style','标题风格'],['content_title_signal_score','内容标题信号分'],['alert_types','报警类型']
   ];
   fields.forEach(function(pair){var v=cleanApiText(r[pair[0]]);if(v)row[pair[1]]=v;});
   var hv=r&&r.has_alert,hs=String(hv==null?'':hv).trim();
   if(hv===true||/^(true|1|是|yes)$/i.test(hs)||row['报警类型'])row['身份报警']='是';
   return row;
 }
-function qianchuanPayloads(bundle,name){
-  var facts=(bundle&&bundle.facts)||{},g={},bundleScope=cleanApiText(bundle&&bundle.scope),bundleWindow=(bundle&&bundle.window)||{},planWindow=(bundle&&bundle.plan_window_reconciliation)||{},platformValidation=(bundle&&bundle.material_identity_summary&&bundle.material_identity_summary.platform_validation)||null,planByAccount={};(planWindow.accounts||[]).forEach(function(x){var aid=cleanApiText(x&&x.advertiser_id);if(aid)planByAccount[aid]=x;});var hasLiveDaily=Object.prototype.hasOwnProperty.call(facts,'live_daily')&&Array.isArray(facts.live_daily),liveRows=hasLiveDaily?facts.live_daily:[],hasMaterialDaily=Object.prototype.hasOwnProperty.call(facts,'material_daily')&&Array.isArray(facts.material_daily),videoRows=hasMaterialDaily?facts.material_daily:[],hasOtherDaily=Object.prototype.hasOwnProperty.call(facts,'other_daily')&&Array.isArray(facts.other_daily),otherRows=hasOtherDaily?facts.other_daily:[],liveAccounts={};(facts.account_daily||[]).forEach(function(r){var aid=cleanApiText(r&&r.advertiser_id);if(aid)liveAccounts[aid]=1;});var allStatuses=(bundle&&bundle.statuses)||[],liveStatuses=allStatuses.filter(function(s){return cleanApiText(s&&s.spec)==='live_room_daily';}),videoStatuses=allStatuses.filter(function(s){return cleanApiText(s&&s.spec)==='live_video_daily';}),otherStatuses=allStatuses.filter(function(s){return cleanApiText(s&&s.spec)==='live_other_daily';}),liveStatusAccounts={},videoStatusAccounts={},otherStatusAccounts={};liveStatuses.forEach(function(s){var aid=cleanApiText(s&&s.advertiser_id);if(aid)liveStatusAccounts[aid]=s;});videoStatuses.forEach(function(s){var aid=cleanApiText(s&&s.advertiser_id);if(aid)videoStatusAccounts[aid]=s;});otherStatuses.forEach(function(s){var aid=cleanApiText(s&&s.advertiser_id);if(aid)otherStatusAccounts[aid]=s;});function reportStatusOk(s){if(!s||cleanApiText(s.status)!=='ok')return false;var ex=num(s.subcalls_expected),done=num(s.subcalls_completed);return ex>0&&done===ex;}function accountReturnState(rows,statusByAccount,fieldPresent,aid){if(!fieldPresent)return 'missing';if(rows.some(function(r){return cleanApiText(r&&r.advertiser_id)===aid;}))return 'returned';return reportStatusOk(statusByAccount[aid])?'returned_zero':'missing';}var liveReturnByAccount={},videoReturnByAccount={},otherReturnByAccount={};Object.keys(liveAccounts).forEach(function(aid){liveReturnByAccount[aid]=accountReturnState(liveRows,liveStatusAccounts,hasLiveDaily,aid);videoReturnByAccount[aid]=accountReturnState(videoRows,videoStatusAccounts,hasMaterialDaily,aid);otherReturnByAccount[aid]=accountReturnState(otherRows,otherStatusAccounts,hasOtherDaily,aid);});
-  function trace(row,r){row['广告账户ID']=cleanApiText(r.advertiser_id);row['广告账户名称']=cleanApiText(r.account_name);return row;}
-  function platformTrace(row){var p=platformValidation;if(!p||typeof p!=='object'){row['平台校验提供状态']='missing';return row;}row['平台校验提供状态']='provided';if(qcHas(p,'identity_label_coverage_ratio'))row['平台身份标签覆盖率']=num(p.identity_label_coverage_ratio);if(qcHas(p,'metadata_coverage_ratio'))row['平台元数据覆盖率']=num(p.metadata_coverage_ratio);if(qcHas(p,'current_materials'))row['平台当前素材数']=num(p.current_materials);if(qcHas(p,'identity_label_matched_materials'))row['平台身份标签命中数']=num(p.identity_label_matched_materials);if(qcHas(p,'matched_materials'))row['平台元数据命中数']=num(p.matched_materials);var w=p.source_window||{};row['平台快照起始日']=cleanApiText(w.start);row['平台快照结束日']=cleanApiText(w.end);if(qcHas(p,'snapshot_lag_days'))row['平台快照滞后天数']=num(p.snapshot_lag_days);row['平台快照新鲜度']=cleanApiText(p.freshness);row['平台校验状态']=cleanApiText(p.status);return row;}
-  function planTrace(row,r){var aid=cleanApiText(r&&r.advertiser_id),p=planByAccount[aid]||null,d=p&&p.delta,authority=cleanApiText(planWindow.authority),trusted=authority==='qianchuan_uni_promotion_list_LIVE_PROM_GOODS'&&!!p,deltaComplete=!!(d&&qcHas(d,'cost')&&qcHas(d,'gmv')&&qcHas(d,'orders')),ok=trusted&&p.ok===true&&deltaComplete&&num(d.cost)===0&&num(d.gmv)===0&&num(d.orders)===0,otherState=otherReturnByAccount[aid]||'missing';row['独立计划窗口对账']=trusted?(ok?'通过':'未通过'):'未提供';row['独立计划窗口']=[cleanApiText(bundleWindow.start),cleanApiText(bundleWindow.end)].filter(Boolean).join('–');row['独立计划窗口权威']=authority;row['视频素材返回状态']=videoReturnByAccount[aid]||'missing';row['直播直投账户返回状态']=liveReturnByAccount[aid]||'missing';row['其他创意返回状态']=otherState;if(otherState!=='missing'){if(qcHas(r,'other_gmv'))row['其他创意成交金额']=num(r.other_gmv);if(qcHas(r,'other_orders'))row['其他创意成交订单数']=num(r.other_orders);if(qcHas(r,'other_row_count'))row['其他创意行数']=num(r.other_row_count);}if(d){if(qcHas(d,'cost'))row['计划对账消耗差额']=num(d.cost);if(qcHas(d,'gmv'))row['计划对账成交差额']=num(d.gmv);if(qcHas(d,'orders'))row['计划对账订单差额']=num(d.orders);}return platformTrace(row);}
-  function directTrace(row,r,state){trace(row,r);row['直播间ID']=cleanApiText(r.anchor_id||r.room_id);row['直播间名称']=cleanApiText(r.room||r.room_name||r.anchor_name);row['直播场次ID']=cleanApiText(r.show_id||r.anchor_show_id||r.room_show_id);var fp=r&&r.filter_partitions;row['筛选分区']=Array.isArray(fp)?JSON.stringify(fp):cleanApiText(fp);row['直播直投返回状态']=state==='returned_zero'?'已返回0':'已返回';row['直播直投真零']=state==='returned_zero'?'是':'否';row['30日结算已返回']=qcHas(r,'settle_30d_amount')?'是':'否';return row;}
-  (facts.account_daily||[]).forEach(function(r){
-    var d=qcDate(r.date),chan=qcChan(r);if(!/^\d{8}$/.test(d)||!chan)return;
-    if(bundleScope==='self_live'){var row=planTrace(trace(qcMetricRow(r,d),r),r);qcAdd(g,chan,'acct','rng'+d+'_'+d,row,'千川API直播账户总盘');}else{['prod','video','car'].forEach(function(type){qcEnsure(g,chan,type,'rng'+d+'_'+d,qcSheet(type));});}
-  });
-  var liveFactDays={};liveRows.forEach(function(r){
-    var d=qcDate(r.date),chan=qcChan(r),aid=cleanApiText(r.advertiser_id);if(bundleScope!=='self_live'||!/^\d{8}$/.test(d)||!chan||!aid)return;liveFactDays[aid+'|'+d]=1;
-    var row=directTrace(qcMetricRow(r,d),r,'returned');qcAdd(g,chan,'direct','rng'+d+'_'+d,row,'千川API直播间画面直投');
-  });
-  if(bundleScope==='self_live'){var zeroSeen={},roomMap=(bundle&&bundle.advertiser_room_map)||{};(facts.account_daily||[]).forEach(function(r){var d=qcDate(r.date),chan=qcChan(r),aid=cleanApiText(r.advertiser_id),zk=aid+'|'+d,state=liveReturnByAccount[aid]||'missing';if(!/^\d{8}$/.test(d)||!chan||!aid||state==='missing'||liveFactDays[zk]||zeroSeen[zk])return;zeroSeen[zk]=1;var zr=directTrace(qcMetricRow({},d),r,'returned_zero');zr['直播间ID']='__RETURNED_ZERO__';zr['直播间名称']=cleanApiText(roomMap[aid]||r.room||r.room_name);zr['直播场次ID']='';zr['筛选分区']='[]';qcAdd(g,chan,'direct','rng'+d+'_'+d,zr,'千川API直播间画面直投');});}
-  (facts.product_daily||[]).forEach(function(r){
-    var d=qcDate(r.date),chan=qcChan(r);if(!/^\d{8}$/.test(d)||!chan)return;
-    var row=trace(qcMetricRow(r,d),r),pid=cleanApiText(r.product_id||r.qianchuan_product_id);
-    row['商品ID']=pid;row['商品名称']=normTouliuProductName(r.product_name,pid)||'未识别商品';
-    qcAdd(g,chan,'prod','rng'+d+'_'+d,row,'千川API商品成交');
-  });
-  (facts.material_daily||[]).forEach(function(r){
-    var d=qcDate(r.date),chan=qcChan(r);if(!/^\d{8}$/.test(d)||!chan)return;
-    var mt=S(r.material_type).toLowerCase(),type=(mt==='image')?'car':'video';
-    var row=trace(qcMetricRow(r,d),r);
-    row['素材ID']=S(r.material_id)||S(r.ad_id)||S(r.material_name)||'未识别素材';
-    row['素材创建时间']=S(r.material_upload_time);
-    row['30日结算已返回']=qcHas(r,'settle_30d_amount')?'是':'否';
-    if(type==='car'){
-      row['图片名称']=S(r.material_name)||row['素材ID'];
-    }else{
-      row['素材视频名称']=S(r.material_name)||row['素材ID'];
-      row['视频完播率']=num(r.video_finish_rate);
-      if(qcHas(r,'video_3s_rate'))row['3秒播放率']=num(r.video_3s_rate);
-      qcCopyIdentity(row,r);
-    }
-    qcAdd(g,chan,type,'rng'+d+'_'+d,row,qcSheet(type));
-  });
-  return Object.keys(g).sort().map(function(k){
-    var x=g[k],s={};s[x.sheet]=x.rows;
-    return {key:'tlapi::'+x.chan+'::'+x.type+'::'+x.period,payload:{sheets:s,_tl:{chan:x.chan,type:x.type,period:x.period,start:x.period.slice(3,11),end:x.period.slice(12,20),scope:cleanApiText(bundle&&bundle.scope),source:'qianchuan_api',source_window:(bundle&&bundle.window)||{},file:name||''}}};
-  });
-}
+function qianchuanPayloads(bundle,name){var facts=(bundle&&bundle.facts)||{},g={},bundleScope=cleanApiText(bundle&&bundle.scope),bundleWindow=(bundle&&bundle.window)||{},planWindow=(bundle&&bundle.plan_window_reconciliation)||{},platformValidation=(bundle&&bundle.material_identity_summary&&bundle.material_identity_summary.platform_validation)||null,planByAccount={};(planWindow.accounts||[]).forEach(function(x){var aid=cleanApiText(x&&x.advertiser_id);if(aid)planByAccount[aid]=x;});var hasLiveDaily=Object.prototype.hasOwnProperty.call(facts,'live_daily')&&Array.isArray(facts.live_daily),liveRows=hasLiveDaily?facts.live_daily:[],hasMaterialDaily=Object.prototype.hasOwnProperty.call(facts,'material_daily')&&Array.isArray(facts.material_daily),videoRows=hasMaterialDaily?facts.material_daily:[],hasOtherDaily=Object.prototype.hasOwnProperty.call(facts,'other_daily')&&Array.isArray(facts.other_daily),otherRows=hasOtherDaily?facts.other_daily:[],liveAccounts={};(facts.account_daily||[]).forEach(function(r){var aid=cleanApiText(r&&r.advertiser_id);if(aid)liveAccounts[aid]=1;});var allStatuses=(bundle&&bundle.statuses)||[],liveStatuses=allStatuses.filter(function(s){return cleanApiText(s&&s.spec)==='live_room_daily';}),videoStatuses=allStatuses.filter(function(s){return cleanApiText(s&&s.spec)==='live_video_daily';}),otherStatuses=allStatuses.filter(function(s){return cleanApiText(s&&s.spec)==='live_other_daily';}),liveStatusAccounts={},videoStatusAccounts={},otherStatusAccounts={};liveStatuses.forEach(function(s){var aid=cleanApiText(s&&s.advertiser_id);if(aid)liveStatusAccounts[aid]=s;});videoStatuses.forEach(function(s){var aid=cleanApiText(s&&s.advertiser_id);if(aid)videoStatusAccounts[aid]=s;});otherStatuses.forEach(function(s){var aid=cleanApiText(s&&s.advertiser_id);if(aid)otherStatusAccounts[aid]=s;});function reportStatusOk(s){if(!s||cleanApiText(s.status)!=='ok')return false;var ex=num(s.subcalls_expected),done=num(s.subcalls_completed);return ex>0&&done===ex;}function accountReturnState(rows,statusByAccount,fieldPresent,aid){if(!fieldPresent)return 'missing';if(rows.some(function(r){return cleanApiText(r&&r.advertiser_id)===aid;}))return 'returned';return reportStatusOk(statusByAccount[aid])?'returned_zero':'missing';}var liveReturnByAccount={},videoReturnByAccount={},otherReturnByAccount={};Object.keys(liveAccounts).forEach(function(aid){liveReturnByAccount[aid]=accountReturnState(liveRows,liveStatusAccounts,hasLiveDaily,aid);videoReturnByAccount[aid]=accountReturnState(videoRows,videoStatusAccounts,hasMaterialDaily,aid);otherReturnByAccount[aid]=accountReturnState(otherRows,otherStatusAccounts,hasOtherDaily,aid);});function trace(row,r){row['广告账户ID']=cleanApiText(r.advertiser_id);row['广告账户名称']=cleanApiText(r.account_name);return row;}function platformTrace(row){var p=platformValidation;if(!p||typeof p!=='object'){row['平台校验提供状态']='missing';return row;}row['平台校验提供状态']='provided';if(qcHas(p,'identity_label_coverage_ratio'))row['平台身份标签覆盖率']=num(p.identity_label_coverage_ratio);if(qcHas(p,'metadata_coverage_ratio'))row['平台元数据覆盖率']=num(p.metadata_coverage_ratio);if(qcHas(p,'current_materials'))row['平台当前素材数']=num(p.current_materials);if(qcHas(p,'identity_label_matched_materials'))row['平台身份标签命中数']=num(p.identity_label_matched_materials);if(qcHas(p,'matched_materials'))row['平台元数据命中数']=num(p.matched_materials);var w=p.source_window||{};row['平台快照起始日']=cleanApiText(w.start);row['平台快照结束日']=cleanApiText(w.end);if(qcHas(p,'snapshot_lag_days'))row['平台快照滞后天数']=num(p.snapshot_lag_days);row['平台快照新鲜度']=cleanApiText(p.freshness);row['平台校验状态']=cleanApiText(p.status);return row;}function planTrace(row,r){var aid=cleanApiText(r&&r.advertiser_id),p=planByAccount[aid]||null,d=p&&p.delta,authority=cleanApiText(planWindow.authority),trusted=authority==='qianchuan_uni_promotion_list_LIVE_PROM_GOODS'&&!!p,deltaComplete=!!(d&&qcHas(d,'cost')&&qcHas(d,'gmv')&&qcHas(d,'orders')),ok=trusted&&p.ok===true&&deltaComplete&&num(d.cost)===0&&num(d.gmv)===0&&num(d.orders)===0,otherState=otherReturnByAccount[aid]||'missing';row['独立计划窗口对账']=trusted?(ok?'通过':'未通过'):'未提供';row['独立计划窗口']=[cleanApiText(bundleWindow.start),cleanApiText(bundleWindow.end)].filter(Boolean).join('–');row['独立计划窗口权威']=authority;row['视频素材返回状态']=videoReturnByAccount[aid]||'missing';row['直播直投账户返回状态']=liveReturnByAccount[aid]||'missing';row['其他创意返回状态']=otherState;if(otherState!=='missing'){if(qcHas(r,'other_gmv'))row['其他创意成交金额']=num(r.other_gmv);if(qcHas(r,'other_orders'))row['其他创意成交订单数']=num(r.other_orders);if(qcHas(r,'other_row_count'))row['其他创意行数']=num(r.other_row_count);}if(d){if(qcHas(d,'cost'))row['计划对账消耗差额']=num(d.cost);if(qcHas(d,'gmv'))row['计划对账成交差额']=num(d.gmv);if(qcHas(d,'orders'))row['计划对账订单差额']=num(d.orders);}return platformTrace(row);}function directTrace(row,r,state){trace(row,r);row['直播间ID']=cleanApiText(r.anchor_id||r.room_id);row['直播间名称']=cleanApiText(r.room||r.room_name||r.anchor_name);row['直播场次ID']=cleanApiText(r.show_id||r.anchor_show_id||r.room_show_id);var fp=r&&r.filter_partitions;row['筛选分区']=Array.isArray(fp)?JSON.stringify(fp):cleanApiText(fp);row['直播直投返回状态']=state==='returned_zero'?'已返回0':'已返回';row['直播直投真零']=state==='returned_zero'?'是':'否';row['30日结算已返回']=qcHas(r,'settle_30d_amount')?'是':'否';return row;}(facts.account_daily||[]).forEach(function(r){var d=qcDate(r.date),chan=qcChan(r);if(!/^\d{8}$/.test(d)||!chan)return;if(bundleScope==='self_live'){var row=planTrace(trace(qcMetricRow(r,d),r),r);qcAdd(g,chan,'acct','rng'+d+'_'+d,row,'千川API直播账户总盘');}else{var types=chan==='dy_short'?['prod','video','daren']:['prod','video','car'];types.forEach(function(type){qcEnsure(g,chan,type,'rng'+d+'_'+d,qcSheet(type));});}});var liveFactDays={};liveRows.forEach(function(r){var d=qcDate(r.date),chan=qcChan(r),aid=cleanApiText(r.advertiser_id);if(bundleScope!=='self_live'||!/^\d{8}$/.test(d)||!chan||!aid)return;liveFactDays[aid+'|'+d]=1;var row=directTrace(qcMetricRow(r,d),r,'returned');qcAdd(g,chan,'direct','rng'+d+'_'+d,row,'千川API直播间画面直投');});if(bundleScope==='self_live'){var zeroSeen={},roomMap=(bundle&&bundle.advertiser_room_map)||{};(facts.account_daily||[]).forEach(function(r){var d=qcDate(r.date),chan=qcChan(r),aid=cleanApiText(r.advertiser_id),zk=aid+'|'+d,state=liveReturnByAccount[aid]||'missing';if(!/^\d{8}$/.test(d)||!chan||!aid||state==='missing'||liveFactDays[zk]||zeroSeen[zk])return;zeroSeen[zk]=1;var zr=directTrace(qcMetricRow({},d),r,'returned_zero');zr['直播间ID']='__RETURNED_ZERO__';zr['直播间名称']=cleanApiText(roomMap[aid]||r.room||r.room_name);zr['直播场次ID']='';zr['筛选分区']='[]';qcAdd(g,chan,'direct','rng'+d+'_'+d,zr,'千川API直播间画面直投');});}(facts.product_daily||[]).forEach(function(r){var d=qcDate(r.date),chan=qcChan(r);if(!/^\d{8}$/.test(d)||!chan)return;var row=trace(qcMetricRow(r,d),r),pid=cleanApiText(r.product_id||r.qianchuan_product_id);row['商品ID']=pid;row['商品名称']=normTouliuProductName(r.product_name,pid)||'未识别商品';qcAdd(g,chan,'prod','rng'+d+'_'+d,row,'千川API商品成交');});(facts.material_daily||[]).forEach(function(r){var d=qcDate(r.date),chan=qcChan(r);if(!/^\d{8}$/.test(d)||!chan)return;var mt=S(r.material_type).toLowerCase(),type=(mt==='image')?'car':'video';var row=trace(qcMetricRow(r,d),r);row['素材ID']=S(r.material_id)||S(r.ad_id)||S(r.material_name)||'未识别素材';row['素材创建时间']=S(r.material_upload_time);row['30日结算已返回']=qcHas(r,'settle_30d_amount')?'是':'否';if(type==='car'){row['图片名称']=S(r.material_name)||row['素材ID'];}else{row['素材视频名称']=S(r.material_name)||row['素材ID'];row['视频完播率']=num(r.video_finish_rate);if(qcHas(r,'video_3s_rate'))row['3秒播放率']=num(r.video_3s_rate);qcCopyIdentity(row,r);}qcAdd(g,chan,type,'rng'+d+'_'+d,row,qcSheet(type));});(facts.daren_daily||[]).forEach(function(r){var d=qcDate(r.date),chan=qcChan(r);if(!/^\d{8}$/.test(d)||chan!=='dy_short')return;var dn=cleanApiText(r.douyin_name||r.anchor_name||r.aweme_name),di=cleanApiText(r.douyin_id||r.anchor_id||r.aweme_id);if(!dn||!di)return;var row=trace(qcMetricRow(r,d),r);row['抖音号名称']=dn;row['抖音号ID']=di;qcAdd(g,chan,'daren','rng'+d+'_'+d,row,'千川API抖音号');});return Object.keys(g).sort().map(function(k){var x=g[k],s={};s[x.sheet]=x.rows;return {key:'tlapi::'+x.chan+'::'+x.type+'::'+x.period,payload:{sheets:s,_tl:{chan:x.chan,type:x.type,period:x.period,start:x.period.slice(3,11),end:x.period.slice(12,20),scope:cleanApiText(bundle&&bundle.scope),source:'qianchuan_api',source_window:(bundle&&bundle.window)||{},file:name||''}}};});}
 function selfLiveAccountKey(r){var aid=S(r&&r['广告账户ID']).trim(),txt=[S(r&&r['广告账户名称']),S(r&&r['直播间名称'])].join(' ');if(txt.indexOf('面膜')>=0||aid==='1866142023488967')return 'mask';if(txt.indexOf('面霜')>=0||aid==='1843956002771338')return 'cream';return '';}
 function buildSelfLiveAccountViews(b,D){var types=['acct','direct','video'],by={};types.forEach(function(type){(b[type]||[]).forEach(function(r){var key=selfLiveAccountKey(r);if(!key)return;by[key]=by[key]||{prod:[],video:[],car:[],daren:[],acct:[],direct:[]};by[key][type].push(r);});});var views={};Object.keys(by).forEach(function(key){var t=buildTouliu(by[key],D);t.accountKey=key;t.accountLabel=key==='cream'?'面霜':'面膜';views[key]=t;});return views;}
 function buildTouliu(b,D){
@@ -553,7 +511,7 @@ function buildTouliu(b,D){
   var actionableVideos=videos.filter(function(v){return v.cost>0&&!v.isAigc;});
   var vtot=actionableVideos.reduce(function(s,v){return s+v.cost;},0);var low=actionableVideos.filter(function(v){return v.payRoi<1.2;}).reduce(function(s,v){return s+v.cost;},0);
   var dset={};totalAll.forEach(function(r){var d=gyDate(r['日期']);if(d)dset[d]=1;});
-  var hasEng=actionableVideos.some(function(v){return v.finish>0||v.p3!=null;});var hasSettle=actionableVideos.some(function(v){return v.roi30>0;});var dmap={};metricRows(b.daren).filter(function(r){return tlnum(r['整体消耗'])>0;}).forEach(function(r){var nm=S(r['抖音号名称'])||S(r['抖音号ID']);if(!dmap[nm])dmap[nm]={n:nm,cost:0,gmv:0,ord:0,s30:0};var dd=dmap[nm];dd.cost+=tlnum(r['整体消耗']);dd.gmv+=tlnum(r['整体成交金额']);dd.ord+=tlnum(r['整体成交订单数']);dd.s30+=tlnum(r['30日结算金额']);});var darens=Object.keys(dmap).map(function(k){var d=dmap[k];return {n:d.n,cost:d.cost,gmv:d.gmv,ord:d.ord,payRoi:d.cost?d.gmv/d.cost:0,roi30:d.cost?d.s30/d.cost:0,cpa:d.ord?d.cost/d.ord:0,aov:d.ord?d.gmv/d.ord:0};}).sort(function(a,b){return b.cost-a.cost;});
+  var hasEng=actionableVideos.some(function(v){return v.finish>0||v.p3!=null;});var hasSettle=actionableVideos.some(function(v){return v.roi30>0;});var dmap={};metricRows(b.daren).filter(function(r){return tlnum(r['整体消耗'])>0;}).forEach(function(r){var id=S(r['抖音号ID']),nm=S(r['抖音号名称'])||id,key=id||nm;if(!dmap[key])dmap[key]={id:id,n:nm,cost:0,gmv:0,ord:0,s30:0};var dd=dmap[key];dd.cost+=tlnum(r['整体消耗']);dd.gmv+=tlnum(r['整体成交金额']);dd.ord+=tlnum(r['整体成交订单数']);dd.s30+=tlnum(r['30日结算金额']);});var darens=Object.keys(dmap).map(function(k){var d=dmap[k];return {n:d.n,cost:d.cost,gmv:d.gmv,ord:d.ord,payRoi:d.cost?d.gmv/d.cost:0,roi30:d.cost?d.s30/d.cost:0,cpa:d.ord?d.cost/d.ord:0,aov:d.ord?d.gmv/d.ord:0};}).sort(function(a,b){return b.cost-a.cost;});
   var carRows=metricRows(b.car);var carCost=carRows.reduce(function(ss,r){return ss+tlnum(r['整体消耗']);},0);
   var cmap={};carRows.filter(function(r){return tlnum(r['整体消耗'])>0;}).forEach(function(r){var id=S(r['素材ID']);if(!cmap[id])cmap[id]={id:id,cost:0,gmv:0,exp:0,click:0,ord:0,s30:0};var cc=cmap[id];var x=tlnum(r['整体消耗']);cc.cost+=x;cc.gmv+=tlnum(r['整体成交金额']);cc.exp+=tlnum(r['整体展示次数']);cc.click+=tlnum(r['整体点击次数']);cc.ord+=tlnum(r['整体成交订单数']);cc.s30+=tlnum(r['30日结算金额']);});
   var cars=Object.keys(cmap).map(function(k){var c=cmap[k];return {id:c.id,cost:c.cost,payRoi:c.cost?c.gmv/c.cost:0,roi30:c.cost?c.s30/c.cost:0,ctr:c.exp?c.click/c.exp*100:0,cvr:c.click?c.ord/c.click*100:0};}).sort(function(a,b){return b.cost-a.cost;});
@@ -567,7 +525,7 @@ function detectKey(sheets){
 /* 只保留需要的sheet和列，压缩体积 */
 var KEEP_SHEETS=['成交概览','自营成交','合作成交','账号构成'];
 var KEEP_COLS={'日期':1,'投放时段':1,'载体类型':1,'成交金额':1,'净成交金额':1,'退款金额(支付时间)':1,'退款订单数(支付时间)':1,'退款率(支付时间)':1,'成交订单数':1,'成交人数':1,'客单价':1,'成交件数':1,'用户支付金额':1,'平台补贴金额':1,'商品曝光次数':1,'商品点击次数':1,'商品曝光-点击转化率(次数)':1,'商品点击-成交转化率(次数)':1,'千次曝光用户支付金额':1,'账号名称':1,'账号类型':1,'自营/合作':1,'商品名称':1,'商品编码':1,'商品ID':1,'成交退款金额':1,'自卖/合作':1,'载体':1,'统计周期':1,'素材ID':1,'素材视频名称':1,'素材创建时间':1,'图片名称':1,'整体消耗':1,'整体成交金额':1,'整体成交订单数':1,'整体支付ROI':1,'整体展示次数':1,'整体点击次数':1,'30日结算金额':1,'7日结算金额':1,'14日结算金额':1,'视频完播率':1,'3秒播放率':1,'抖音号名称':1,'抖音号ID':1};
-['广告账户ID','广告账户名称','30日结算已返回','身份一级','身份','证据级别','判定依据','桥接状态','桥接方式','授权命中数','命中aweme_item_id','授权状态','平台标签','素材来源','平台标签快照生成时间','平台标签快照来源','平台标签快照哈希','供应商关键词','组名关键词','疑似达人关键词','身份报警','报警类型'].forEach(function(k){KEEP_COLS[k]=1;});
+['广告账户ID','广告账户名称','30日结算已返回','身份一级','身份','证据级别','判定依据','桥接状态','桥接方式','授权命中数','命中aweme_item_id','授权状态','平台标签','素材来源','平台标签快照生成时间','平台标签快照来源','平台标签快照哈希','供应商关键词','组名关键词','疑似达人关键词','标题风格','内容标题信号分','身份报警','报警类型'].forEach(function(k){KEEP_COLS[k]=1;});
 function trimRows(rows){return (rows||[]).map(function(r){var o={};for(var k in r){if(KEEP_COLS[k])o[k]=r[k];}return o;});}
 function trim(sheets){
   if(KEEP_SHEETS.some(function(k){return sheets[k];})){var o={};KEEP_SHEETS.forEach(function(k){if(sheets[k])o[k]=trimRows(sheets[k]);});return o;}
@@ -745,38 +703,18 @@ function renderPrd(){var src=D.prod[per]||{};var list=(src[ch==='all'?'all':ch])
 function prodAlias(n){n=String(n||'');if(n.indexOf('红鹤')>=0)return '面霜正装';if(n.indexOf('多维修护')>=0)return '面霜中样';if(n.indexOf('冰感面膜')>=0)return '冰感面膜';return n.length>14?n.slice(0,14)+'…':n;}
 function renderDataCheck(){
   var el=document.getElementById('dataCheck');if(!el)return;
-  if(!D){el.innerHTML='';return;}
-  var hasAny=((D.dates||[]).length)||(D.touliu&&Object.keys(D.touliu).length)||(D.live&&Object.keys(D.live).length)||(D.danmu&&D.danmu.msgs&&D.danmu.msgs.length);
-  if(!hasAny){el.innerHTML='';return;}
-  var exp={zibo:'自播',zy_shelf:'自营货架',dy_short:'达人短视频'};
-  var REQ={zibo:['prod','video'],zy_shelf:['prod','video'],dy_short:['prod','video','daren']};
-  var TLBL={prod:'商品表',video:'视频表',daren:'抖音号表',car:'车图表'};
-  var PRODLBL={zibo:'自播',zy_shelf:'自营货架',dabo:'达播',dy_short:'达人短视频'};
-  var wkGmv={};
-  (D.dates||[]).forEach(function(d){var W=periodOf(d);if(!wkGmv[W])wkGmv[W]={zibo:0,zy_shelf:0,dabo:0,dy_short:0};['zibo','zy_shelf','dabo','dy_short'].forEach(function(ch){if(D.daily[d]&&D.daily[d][ch])wkGmv[W][ch]+=D.daily[d][ch].gmv;});});
-  var weeks={};
-  Object.keys(wkGmv).forEach(function(W){weeks[W]=1;});
-  Object.keys(D.touliu||{}).forEach(function(W){if(isWeekPeriod(W))weeks[W]=1;});
-  Object.keys(D.present||{}).forEach(function(W){weeks[W]=1;});
-  var lines=[];
-  Object.keys(weeks).sort().forEach(function(W){
-    if(W.slice(0,6)<'202606')return;
-    var pr=(D.present&&D.present[W])||{prod:{}};
-    var wl=weekContextLabel(W);
-    var miss=[];
-    if(!pr.luopan)miss.push('罗盘成交表');
-    if(pr.luopan){var ws=periodStart(W),missingDates=[];if(/^\d{8}$/.test(ws)){for(var di=0;di<7;di++){var wd=addDay(ws,di);if(!D.daily[wd]||!D.daily[wd].all)missingDates.push(wd.slice(4,6)+'/'+wd.slice(6));}}if(missingDates.length)miss.push('罗盘成交明细缺'+missingDates.length+'天（'+missingDates.join('、')+'）');var g=wkGmv[W]||{};['zibo','zy_shelf','dabo','dy_short'].forEach(function(ch){if((g[ch]||0)>0&&!(pr.prod&&pr.prod[ch]))miss.push(PRODLBL[ch]+'商品表');});if((g.zibo||0)>0&&!pr.live)miss.push('自播直播表');}
-    if(miss.length)lines.push(wl+'：缺 '+miss.join('、'));
-    Object.keys(exp).forEach(function(ch){
-      var t=D.touliu[W]&&D.touliu[W][ch];
-      if(!t){lines.push(wl+'：'+exp[ch]+' 投流未导');return;}
-      var m2=(REQ[ch]||['prod','video']).filter(function(ty){return !(t.present&&t.present[ty]);}).map(function(ty){return TLBL[ty];});
-      if(m2.length){lines.push(wl+'：'+exp[ch]+'投流 缺 '+m2.join('、'));}
-      else if(t.cost>0&&t.matCost>0&&Math.abs(t.cost-t.matCost)/t.cost>0.03){lines.push(wl+'：'+exp[ch]+'投流 商品消耗'+fmtM(t.cost)+'与素材消耗'+fmtM(t.matCost)+'对不上(疑似漏表/导错)');}
-    });
-  });
-  if(!lines.length){el.innerHTML='<div style="margin-top:8px;font-size:11px;color:#5f7a4f">✅ 各周数据齐全（罗盘成交表+各触点商品表+直播表+投流都在）</div>';return;}
-  el.innerHTML='<div style="margin-top:8px;padding:8px 12px;background:#fbe8d8;border:1px solid #e0a96a;border-radius:7px;font-size:11px;color:#8a5a12;line-height:1.8">⚠️ <b>数据完整性提醒</b> —— 检查到以下缺漏（达播不归因，不计入）：<br>'+lines.map(function(l){return '· '+l;}).join('<br>')+'</div>';
+  var report=window.__GY_DATA_QUALITY__||null,api=window.GYDataCompleteness||null;
+  function h(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  if(!report){el.innerHTML='<div data-quality-state="missing-report" style="margin-top:8px;padding:9px 12px;background:#fbe8d8;border:1px solid #d98770;border-radius:7px;font-size:11px;color:#8b2f22;line-height:1.75">⚠️ <b>数据完整性提醒</b>：本版本缺少同批统一契约报告，不能把“未显示问题”当作数据完整。</div>';return;}
+  var runtime=api&&api.runtimeIssues?api.runtimeIssues(report,new Date()):[],issues=(report.issues||[]).concat(runtime||[]);
+  if(api&&api.stableIssues)issues=api.stableIssues(issues);
+  var blocking=issues.filter(function(x){return x.required!==false&&x.severity==='error'&&x.status!=='not_due'&&x.status!=='optional_layer';});
+  var warnings=issues.filter(function(x){return x.severity==='warning';}),infos=issues.filter(function(x){return x.severity==='info'||x.status==='not_due'||x.status==='optional_layer';});
+  if(!issues.length){el.innerHTML='<div data-quality-state="ok" style="margin-top:8px;padding:8px 12px;background:#eef8ed;border:1px solid #add1aa;border-radius:7px;font-size:11px;color:#376b35">✅ <b>数据完整性</b>：统一契约 '+h(report.contract_version)+' 已核 '+h(report.authoritative_input_unit_count)+' 个权威输入单元，未发现缺失。</div>';return;}
+  function one(x){var head=[x.date_or_period,x.domain,x.source+(x.touchpoint?'/'+x.touchpoint:''),x.layer+(x.item?'/'+x.item:'')].filter(Boolean).join(' · ');return '<li data-quality-status="'+h(x.status)+'" style="margin:3px 0"><b>'+h(x.status_label||x.status)+'</b>｜'+h(head)+'｜'+h(x.reason)+'</li>';}
+  var bad=blocking.length>0,bg=bad?'#fbe8d8':'#fff8e8',bd=bad?'#d98770':'#e4c56c',fg=bad?'#8b2f22':'#7a5b09';
+  var summary=(bad?'发现 '+blocking.length+' 项阻断问题':'无阻断问题')+(warnings.length?'、'+warnings.length+' 项风险':'')+(infos.length?'、'+infos.length+' 项时点/可选说明':'');
+  el.innerHTML='<div data-quality-state="'+(bad?'blocked':'warning')+'" style="margin-top:8px;padding:9px 12px;background:'+bg+';border:1px solid '+bd+';border-radius:7px;font-size:11px;color:'+fg+';line-height:1.65"><b>⚠️ 数据完整性提醒</b>｜目标日 '+h(report.target_date)+'｜契约 '+h(report.contract_version)+'｜'+h(summary)+'<details '+(issues.length<=12?'open':'')+' style="margin-top:5px"><summary style="cursor:pointer">查看全部 '+issues.length+' 条（不隐藏、不只显示第一条）</summary><ol style="margin:5px 0 0 18px;padding:0;max-height:330px;overflow:auto">'+issues.map(one).join('')+'</ol></details></div>';
 }
 function renderMonthGoals(){var el=document.getElementById('mgoalsMod');if(!el)return;var mset={};((D&&D.months)||[]).forEach(function(m){mset[m.key]=1;});Object.keys(tgtsAll).forEach(function(k){if(/^\d{6}$/.test(k))mset[k]=1;});var mkeys=Object.keys(mset).filter(function(k){return /^\d{6}$/.test(k);}).sort();if(!mkeys.length){el.innerHTML='';return;}var h='<div style="background:#fff;border:1px solid #ece2cf;border-radius:9px;padding:10px 14px"><div style="font-size:12px;color:#a9760a;font-weight:600;margin-bottom:8px">📅 各月目标达成一览 <span style="font-weight:400;color:#b3a890;font-size:11px">目标在上方下拉选月份填写</span></div>';h+=mkeys.map(function(k){var lab=parseInt(k.slice(4,6),10)+'月';var t=monthTgts(k);var tgt=CH.reduce(function(s,c){return s+(t[c]||0);},0);var g=(typeof agg==='function'&&D.periods&&D.periods[k+'_all'])?agg(k+'_all','all').gmv:0;var pct=tgt?g/tgt:0;var col=pct>=1?'#2e7d32':pct>=0.8?'#b07d12':'#c0392b';return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;font-size:12px"><span style="width:38px;font-weight:600;flex-shrink:0">'+lab+'</span><div style="flex:1;height:15px;background:#f1e9d8;border-radius:4px;overflow:hidden"><div style="width:'+Math.min(pct*100,100).toFixed(1)+'%;height:100%;background:'+col+'"></div></div><span style="width:175px;text-align:right;color:#8a7d66;flex-shrink:0">成交 '+fmtM(g)+' / 目标 '+(tgt?fmtM(tgt):'未设')+'</span><span style="width:46px;text-align:right;font-weight:700;color:'+col+';flex-shrink:0">'+(tgt?(pct*100).toFixed(0)+'%':'—')+'</span></div>';}).join('');h+='</div>';el.innerHTML=h;}
 function renderRefund(){
@@ -1017,7 +955,7 @@ function renderTouliu(){
   var el=document.getElementById('touliuMod');if(!el||!D)return;
   var mo=/^(\d{6})_all$/.test(per)?per.slice(0,6):'',tlCross=mo&&D._touliuCrossMonth?D._touliuCrossMonth[mo]:null,tlNote=tlCross?'<div style="margin-bottom:8px;padding:7px 10px;background:#fff8e8;border:1px solid #ead49b;border-radius:6px;color:#8a6500;font-size:10px;line-height:1.55">口径提示：跨月周投流快照没有逐日明细，无法按天拆月；已从本月投流汇总中剔除，请在跨月周视图查看完整快照。</div>':'';
   var pdata=D.touliu&&D.touliu[per];var chan=ch;if(ch==='all'){chan=(pdata&&pdata.zy_shelf)?'zy_shelf':(pdata?Object.keys(pdata)[0]:'');}
-  var t=pdata&&pdata[chan],accountRoot=t;if(chan==='zibo'&&accountRoot){var accountViews=accountRoot.accountViews||{};t=accountViews[tlSelfLiveAccount]||null;}
+  var t=pdata&&pdata[chan],accountRoot=t;if(chan==='zibo'&&accountRoot){var accountViews=accountRoot.accountViews||{};if(!accountViews[tlSelfLiveAccount])tlSelfLiveAccount=accountViews.cream?'cream':(accountViews.mask?'mask':'cream');t=accountViews[tlSelfLiveAccount]||null;}
   if(!t){el.innerHTML=tlNote+'<div class="action-title">💰 投流视图</div><div style="color:#8a7d66;font-size:12px;line-height:1.9">'+(mo?'该触点当前月份暂无可精确按日归属的千川数据；跨月整周数据请切到对应完整自然周查看。':'该触点的千川数据还没导入。')+'</div>';return;}
   var directRoi=t.cost?t.gmv/t.cost:0;
   var pds=(D.periods[per]&&D.periods[per].dates)||t.dates;var fgmv=0;pds.forEach(function(d){if(D.daily[d]&&D.daily[d][chan])fgmv+=D.daily[d][chan].gmv;});
@@ -1055,8 +993,7 @@ function renderTouliu(){
     var identityTotal=idStat(identityVideos),selfStat=idStat(identityVideos.filter(function(v){return v.firstLayerIdentity==='自制';})),creatorStat=idStat(identityVideos.filter(function(v){return v.firstLayerIdentity==='达人';})),unknownIdentity=identityVideos.filter(function(v){return v.firstLayerIdentity!=='自制'&&v.firstLayerIdentity!=='达人';});
     var platformMetadataCovered=identityVideos.filter(function(v){return !!(v.platformLabel||v.materialSource);}).length,platformCovered=identityVideos.filter(function(v){return /自制|达人/.test(v.platformLabel||'');}).length,platformSource=(identityVideos.filter(function(v){return !!v.platformSnapshotSourceFile;})[0]||{}).platformSnapshotSourceFile||'',platformRange='未提供';
     var platformRangeMatch=platformSource.match(/(\d{4}-\d{2}-\d{2}).*?(\d{4}-\d{2}-\d{2})/);if(platformRangeMatch)platformRange=platformRangeMatch[1]+'～'+platformRangeMatch[2];else{var platformGenerated=(identityVideos.filter(function(v){return !!v.platformSnapshotGeneratedAt;})[0]||{}).platformSnapshotGeneratedAt||'';if(platformGenerated)platformRange=platformGenerated.slice(0,10);}
-    var identityBucketNote=chan==='zibo'?'四个归属档加总=“全部”；外部来源素材已并入一组':'五个身份档加总=“全部”';
-    h+='<section class="tl-id-overview" id="tlIdentityOverview"><div class="tl-id-overview-head"><div class="tlk" style="font-weight:700;color:#5a503e">🧬 视频素材身份总观 · 自制 vs 达人</div><div class="tl-id-overview-note">仅视频素材归因口径，含 0 消耗素材与 AIGC；成交不与商品/账户层混算<br>'+identityBucketNote+'；平台标签仅校验，不覆盖 STAR 硬证据</div></div><div class="tl-id-compare">'
+    h+='<section class="tl-id-overview" id="tlIdentityOverview"><div class="tl-id-overview-head"><div class="tlk" style="font-weight:700;color:#5a503e">🧬 视频素材身份总观 · 自制 vs 达人</div><div class="tl-id-overview-note">仅视频素材归因口径，含 0 消耗素材与 AIGC；成交不与商品/账户层混算<br>四个归属档加总=“全部”；外部来源素材已并入一组；平台标签仅校验，不覆盖 STAR 硬证据</div></div><div class="tl-id-compare">'
       +idOverviewCard('自制内容','self','#2f6fd6',selfStat,identityTotal)
       +idOverviewCard('达人授权','creator','#d97706',creatorStat,identityTotal)
       +'</div>'
@@ -1090,7 +1027,7 @@ function renderTouliu(){
     h+='<div class="tlk" style="margin:12px 0 6px">📐 推商品户 · 素材类型消耗</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px"><div class="inv-kpi-cell"><div class="tlk">📹 视频（可追投）</div><div class="tlv">'+fmtM(t.videoCost)+'</div><div class="tls">'+(t.cost?Math.round(t.videoCost/t.cost*100):0)+'% 占消耗</div></div><div class="inv-kpi-cell"><div class="tlk">🛒 商品卡（不可追投）</div><div class="tlv">'+fmtM(t.carCost)+'</div><div class="tls">'+(t.cost?Math.round(t.carCost/t.cost*100):0)+'% 占消耗</div></div><div class="inv-kpi-cell"><div class="tlk">🤖 AIGC（不可追投）</div><div class="tlv">'+fmtM(t.aigcCost)+'</div><div class="tls">'+(t.cost?Math.round(t.aigcCost/t.cost*100):0)+'% 占消耗</div></div></div>';
   }
   if(chan==='zy_shelf'||chan==='zibo'){
-    var identityOrder=chan==='zibo'?[['all','全部'],['达人','达人'],['一组','一组'],['二组','二组'],['待归组','待归组']]:[['all','全部'],['达人','达人'],['外部','外部'],['一组','一组'],['二组','二组'],['待归组','待归组']];
+    var identityOrder=[['all','全部'],['达人','达人'],['一组','一组'],['二组','二组'],['待归组','待归组']];
     var tlIdentityFilter=tlIdentityFilterByChan[chan]||'all';
     if(chan==='zibo')h+=selfLivePlatformValidationHtml(t.platformValidation,'touliu-detail');
     if(!identityOrder.some(function(x){return x[0]===tlIdentityFilter;})){tlIdentityFilter='all';tlIdentityFilterByChan[chan]='all';}
@@ -1100,7 +1037,7 @@ function renderTouliu(){
     function idBadgeCls(v){return v==='达人'?'creator':v==='外部'?'external':v==='一组'?'team1':v==='二组'?'team2':'pending';}
     function v30Text(v){if(!v.rowCount||!v.s30CoveredRows)return '—（未返回）';if(v.s30CoveredRows<v.rowCount)return '—（覆盖 '+Math.round(v.s30Coverage*100)+'%）';return v.cost?fmtRoi(v.roi30):'—（0消耗）';}
     var filterRows=idRows(tlIdentityFilter),filterBucket=idBucket(tlIdentityFilter);
-    h+='<div class="tlk" style="margin:12px 0 4px">🎬 视频素材身份明细 <span style="color:#b3a890;margin-left:8px">全量唯一 ID，含 0 消耗与 AIGC；“全部”不参与'+(chan==='zibo'?'四归属档':'五身份档')+'相加</span></div>';
+    h+='<div class="tlk" style="margin:12px 0 4px">🎬 视频素材身份明细 <span style="color:#b3a890;margin-left:8px">全量唯一 ID，含 0 消耗与 AIGC；“全部”不参与四归属档相加</span></div>';
     h+='<div class="tl-id-filter-row" id="tlIdentityFilters">'+identityOrder.map(function(x){var b=idBucket(x[0]);return '<button type="button" class="tl-id-filter '+(tlIdentityFilter===x[0]?'on':'')+'" data-tl-filter="'+escHtml(x[0])+'" onclick="setTlIdentityFilter(\''+x[0]+'\',\''+chan+'\')">'+x[1]+'<small>'+b.count+' 条 · '+idMoney(b.cost)+'</small></button>';}).join('')+'</div>';
     h+='<div class="tl-id-summary" id="tlIdentityFilterSummary">当前：'+identityOrder.filter(function(x){return x[0]===tlIdentityFilter;})[0][1]+' · '+filterBucket.count+' 条素材 · 消耗 '+idMoney(filterBucket.cost)+'</div>';
     h+='<div class="tl-id-table-wrap" id="tlIdentityTableWrap"><table class="inv-tbl" id="tlIdentityTable"><thead><tr><th>素材名称</th><th>素材ID</th><th>身份</th><th>证据</th><th onclick="tlSortV(\'cost\')" style="cursor:pointer">消耗'+arV('cost')+'</th><th>成交</th><th onclick="tlSortV(\'days\')" style="cursor:pointer">上线\u2192跑出'+arV('days')+'</th><th onclick="tlSortV(\'p3\')" style="cursor:pointer">3秒'+arV('p3')+'</th><th onclick="tlSortV(\'finish\')" style="cursor:pointer">完播'+arV('finish')+'</th><th onclick="tlSortV(\'ctr\')" style="cursor:pointer">CTR'+arV('ctr')+'</th><th onclick="tlSortV(\'cvr\')" style="cursor:pointer">转化率'+arV('cvr')+'</th><th onclick="tlSortV(\'payRoi\')" style="cursor:pointer">支付ROI'+arV('payRoi')+'</th><th onclick="tlSortV(\'roi30\')" style="cursor:pointer">30日ROI'+arV('roi30')+'</th><th>阶段</th><th>诊断</th></tr></thead><tbody>';
@@ -1186,7 +1123,7 @@ buildTgt();renderActions();
       var localStore=v[0]||localStorage.getItem(STORE_KEY);var cached=parseSnapshot(v[1]);var fresh=parseSnapshot(v[2]);var central=fresh||cached;var embeddedSeed=window.__GY_SEED__||{},embeddedStore=embeddedSeed.gy_import_store_v1||'{}',embedded=false;var queryLocal=false;try{queryLocal=new URL(location.href).searchParams.get('mode')==='local';}catch(e){}
       if(hasStore(embeddedStore)){central={schema:'gy-central-store-v1',version:'exported-local',seed:embeddedSeed};embedded=true;queryLocal=true;}
       if(!central){GYMEM.store='{}';GYMEM.mode=queryLocal?'local':'viewer';window.__GY_CENTRAL_STATE__={ready:true,mode:GYMEM.mode,version:'',network:false,error:'中央数据加载失败'};rebuildFromStore();setStatus('中央数据加载失败，请刷新页面');return;}
-      GYMEM.centralStore=central.seed.gy_import_store_v1;GYMEM.centralVersion=central.version||'';
+      GYMEM.centralStore=central.seed.gy_import_store_v1;GYMEM.centralVersion=central.version||'';window.__GY_DATA_QUALITY__=central.data_quality||null;
       if(embedded){GYMEM.mode='local';GYMEM.store=embeddedStore;applySmallSeed(central);}else if(queryLocal&&hasStore(localStore)){GYMEM.mode='local';GYMEM.store=localStore;}else{GYMEM.mode=queryLocal?'local':'viewer';GYMEM.store=GYMEM.centralStore;applySmallSeed(central);}
       if(fresh)idbSet(GY_CENTRAL_CACHE_KEY,JSON.stringify(fresh));
       GYMEM.suppressPersist=GYMEM.mode==='viewer';migrateStore();GYMEM.suppressPersist=false;rebuildFromStore();
@@ -1614,6 +1551,1043 @@ buildTgt();renderActions();
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
   else start();
 })();
+</script><script id="__gyDataCompletenessCore">(function (root, factory) {
+  const api = factory();
+  if (typeof module === "object" && module.exports) module.exports = api;
+  if (root) root.GYDataCompleteness = api;
+})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+  "use strict";
+
+  const REQUIRED_PRODUCT_FIELDS = [
+    "统计周期", "商品名称", "商品编码", "载体", "自卖/合作", "成交金额", "成交订单数",
+  ];
+  const REQUIRED_PRODUCT_NUMERIC_FIELDS = ["成交金额", "成交订单数"];
+  const REQUIRED_LUOPAN_SHEETS = ["成交概览", "自营成交", "合作成交", "账号构成"];
+  const SUPPORTED_CONTRACT_SCHEMA = "gy-data-completeness-contract-v1";
+  const SUPPORTED_CONTRACT_VERSION = "2026-07-21.3";
+  const LOCKED_PRODUCT_COMBINATIONS = [
+    ["自卖", "直播", "自播"],
+    ["自卖", "短视频", "自营货架"],
+    ["自卖", "商品卡", "自营货架"],
+    ["合作", "直播", "达播"],
+    ["合作", "短视频", "达人短视频"],
+    ["合作", "商品卡", "达人短视频"],
+  ];
+  const LOCKED_AD_SCOPES = {
+    self_shelf: {
+      channel: "zy_shelf",
+      accounts: ["1841581240024778", "1710621310336004"],
+      sourceSpecs: ["account_daily", "product_daily", "ad_daily", "material_video_daily", "material_image_daily", "aweme_auth_list"],
+      globalSpecs: ["material_identity_build"],
+      requiredLayers: ["prod", "video", "car"],
+    },
+    self_live: {
+      channel: "zibo",
+      accounts: ["1866142023488967", "1843956002771338"],
+      sourceSpecs: ["live_plan_anchors", "authorized_aweme_anchor_bridge", "live_video_daily", "live_room_daily", "live_other_daily", "aweme_auth_list"],
+      globalSpecs: ["material_identity_build"],
+      requiredLayers: ["acct", "direct", "video"],
+    },
+    creator_short_video: {
+      channel: "dy_short",
+      accounts: ["1841581403523785", "1863165213655306"],
+      sourceSpecs: ["account_daily", "product_daily", "ad_daily", "material_video_daily", "material_image_daily"],
+      globalSpecs: ["daren_plan_identity"],
+      requiredLayers: ["prod", "video", "daren"],
+    },
+  };
+  const AD_LAYER_FACTS = {
+    self_shelf: {
+      prod: { fact: "product_daily", statusSpecs: ["product_daily"] },
+      video: { fact: "material_daily", materialType: "video", statusSpecs: ["material_video_daily"] },
+      car: { fact: "material_daily", materialType: "image", statusSpecs: ["material_image_daily"] },
+    },
+    self_live: {
+      acct: { fact: "account_daily", statusSpecs: ["live_video_daily", "live_room_daily", "live_other_daily"] },
+      direct: { fact: "live_daily", statusSpecs: ["live_room_daily"] },
+      video: { fact: "material_daily", materialType: "video", statusSpecs: ["live_video_daily"] },
+    },
+    creator_short_video: {
+      prod: { fact: "product_daily", statusSpecs: ["product_daily"] },
+      video: { fact: "material_daily", materialType: "video", statusSpecs: ["material_video_daily"] },
+      daren: { fact: "daren_daily", statusSpecs: ["ad_daily"] },
+    },
+  };
+  const STATUS_ORDER = {
+    not_pulled: 10,
+    not_imported: 20,
+    table_missing: 30,
+    content_date_mismatch: 40,
+    dimension_mismatch: 50,
+    required_field_missing: 60,
+    coverage_gap: 70,
+    stale: 80,
+    revision_mismatch: 90,
+    content_anomaly: 100,
+    not_due: 900,
+    optional_layer: 910,
+  };
+
+  function cleanDate(value) {
+    const text = String(value == null ? "" : value).replace(/[^0-9]/g, "");
+    return text.length >= 8 ? text.slice(0, 8) : "";
+  }
+
+  function parseDay(value) {
+    const d = cleanDate(value);
+    if (!/^\d{8}$/.test(d)) return null;
+    return new Date(Date.UTC(Number(d.slice(0, 4)), Number(d.slice(4, 6)) - 1, Number(d.slice(6, 8)), 12));
+  }
+
+  function formatDay(date) {
+    return [date.getUTCFullYear(), String(date.getUTCMonth() + 1).padStart(2, "0"), String(date.getUTCDate()).padStart(2, "0")].join("");
+  }
+
+  function addDays(value, amount) {
+    const date = parseDay(value);
+    if (!date) return "";
+    date.setUTCDate(date.getUTCDate() + Number(amount || 0));
+    return formatDay(date);
+  }
+
+  function daysBetween(start, end) {
+    const out = [];
+    let cursor = cleanDate(start);
+    const stop = cleanDate(end);
+    while (cursor && stop && cursor <= stop) {
+      out.push(cursor);
+      cursor = addDays(cursor, 1);
+      if (out.length > 1000) throw new Error("date range is unexpectedly large");
+    }
+    return out;
+  }
+
+  function mondayOf(value) {
+    const date = parseDay(value);
+    if (!date) return "";
+    const day = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() - day + 1);
+    return formatDay(date);
+  }
+
+  function isoToShanghaiParts(value) {
+    const date = value instanceof Date ? value : new Date(value);
+    if (!Number.isFinite(date.getTime())) return { day: "", hour: null, valid: false, timestamp: NaN };
+    const shifted = new Date(date.getTime() + 8 * 3600 * 1000);
+    return {
+      day: formatDay(new Date(Date.UTC(shifted.getUTCFullYear(), shifted.getUTCMonth(), shifted.getUTCDate(), 12))),
+      hour: shifted.getUTCHours(),
+      valid: true,
+      timestamp: date.getTime(),
+    };
+  }
+
+  function sourceRows(payload) {
+    const sheets = payload && payload.sheets && typeof payload.sheets === "object" ? payload.sheets : {};
+    return Object.values(sheets).flatMap((rows) => (Array.isArray(rows) ? rows : []));
+  }
+
+  function missingFields(row, fields) {
+    return fields.filter((field) => (
+      !Object.prototype.hasOwnProperty.call(row || {}, field)
+      || row?.[field] == null
+      || (typeof row[field] === "string" && !row[field].trim())
+    ));
+  }
+
+  function exactStringSet(actual, expected) {
+    const left = (actual || []).map((value) => String(value || "")).sort();
+    const right = (expected || []).map((value) => String(value || "")).sort();
+    return JSON.stringify(left) === JSON.stringify(right);
+  }
+
+  function validateContract(contract) {
+    if (!contract || typeof contract !== "object") throw new Error("Data completeness contract must be a JSON object.");
+    if (contract.schema !== SUPPORTED_CONTRACT_SCHEMA) {
+      throw new Error(`Unsupported data completeness contract schema: ${contract.schema || "missing"}.`);
+    }
+    if (contract.version !== SUPPORTED_CONTRACT_VERSION) {
+      throw new Error(`Unsupported data completeness contract version: ${contract.version || "missing"}.`);
+    }
+    for (const field of ["product_daily_from", "refund_floor", "refund_daily_from"]) {
+      if (!/^\d{8}$/.test(cleanDate(contract[field]))) throw new Error(`Data completeness contract has invalid ${field}.`);
+    }
+    if (!(Number(contract.refund_window_days) >= 1) || !(Number(contract.daily_cutoff_hour) >= 0 && Number(contract.daily_cutoff_hour) <= 23)) {
+      throw new Error("Data completeness contract has invalid refund_window_days or daily_cutoff_hour.");
+    }
+    const productTuples = (contract.product_combinations || []).map((row) => [row?.sell_type, row?.carrier, row?.touchpoint].join("\u0001"));
+    const lockedProductTuples = LOCKED_PRODUCT_COMBINATIONS.map((row) => row.join("\u0001"));
+    if (!exactStringSet(productTuples, lockedProductTuples)) {
+      throw new Error("Data completeness contract product_combinations do not match the locked six combinations.");
+    }
+    if (contract.feishu_live?.required !== true || !exactStringSet(contract.feishu_live.required_fields, [
+      "date", "host", "start", "end", "exp", "view", "gmv", "cost", "pexp", "pclk", "deal",
+    ])) {
+      throw new Error("Data completeness contract Feishu required fields are incomplete.");
+    }
+    for (const [scope, locked] of Object.entries(LOCKED_AD_SCOPES)) {
+      const cfg = contract.advertising?.[scope];
+      const accountIds = (cfg?.accounts || []).map((row) => row?.advertiser_id);
+      const requiredLayers = (cfg?.store_layers || []).filter((row) => row?.required !== false).map((row) => row?.type);
+      if (
+        cfg?.required !== true
+        || cfg?.channel !== locked.channel
+        || !exactStringSet(accountIds, locked.accounts)
+        || !exactStringSet(cfg?.required_source_specs, locked.sourceSpecs)
+        || !exactStringSet(cfg?.global_source_specs, locked.globalSpecs)
+        || !exactStringSet(requiredLayers, locked.requiredLayers)
+      ) {
+        throw new Error(`Data completeness contract required advertising scope is incomplete: ${scope}.`);
+      }
+    }
+    if (contract.platform_material_labels?.required !== true || contract.platform_material_labels?.source_kind !== "qianchuan_video_get" || !(Number(contract.platform_material_labels.max_age_days) >= 0)) {
+      throw new Error("Data completeness contract platform-material-label requirement is incomplete.");
+    }
+    const requiredIssueTypes = Object.keys(STATUS_ORDER);
+    if (requiredIssueTypes.some((status) => !String(contract.issue_types?.[status] || "").trim())) {
+      throw new Error("Data completeness contract issue_types are incomplete.");
+    }
+  }
+
+  function issueKey(issue) {
+    return [
+      issue.status, issue.date_or_period, issue.domain, issue.source, issue.touchpoint,
+      issue.layer, issue.item, issue.reason,
+    ].map((value) => String(value || "")).join("\u0001");
+  }
+
+  function stableIssues(issues) {
+    const seen = new Set();
+    return issues.filter((issue) => {
+      const key = issueKey(issue);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    }).sort((a, b) => {
+      const av = [a.date_or_period || "", a.domain || "", a.source || "", a.touchpoint || "", a.layer || "", STATUS_ORDER[a.status] || 500, a.reason || ""];
+      const bv = [b.date_or_period || "", b.domain || "", b.source || "", b.touchpoint || "", b.layer || "", STATUS_ORDER[b.status] || 500, b.reason || ""];
+      for (let i = 0; i < av.length; i += 1) {
+        const cmp = String(av[i]).localeCompare(String(bv[i]), "zh-CN", { numeric: true });
+        if (cmp) return cmp;
+      }
+      return 0;
+    });
+  }
+
+  function makeIssue(status, values) {
+    return {
+      status,
+      status_label: values.status_label || "",
+      severity: values.severity || "error",
+      required: values.required !== false,
+      contract_id: values.contract_id || "",
+      date_or_period: values.date_or_period || "",
+      domain: values.domain || "",
+      source: values.source || "",
+      touchpoint: values.touchpoint || "",
+      layer: values.layer || "",
+      item: values.item || "",
+      reason: values.reason || "",
+    };
+  }
+
+  function addIssue(state, status, values) {
+    state.issues.push(makeIssue(status, {
+      ...values,
+      status_label: state.contract.issue_types?.[status] || status,
+    }));
+  }
+
+  function addMapping(state, row) {
+    state.mapping.push({
+      contract_id: row.contract_id || "",
+      domain: row.domain || "",
+      authoritative_source: row.authoritative_source || "",
+      touchpoint_or_sell_type: row.touchpoint_or_sell_type || "",
+      carrier_or_layer: row.carrier_or_layer || "",
+      due_date_or_period: row.due_date_or_period || "",
+      expected_table_or_api: row.expected_table_or_api || "",
+      required: row.required !== false,
+      input_unit: row.input_unit === true,
+      current_reminder_logic: "统一契约生成",
+      state: row.state || "unknown",
+      evidence: row.evidence || "",
+    });
+  }
+
+  function validateLuopan(state) {
+    const { store, target, task } = state;
+    const start = cleanDate(task?.businessPeriod?.start) || mondayOf(target);
+    const end = cleanDate(task?.businessPeriod?.end) || target;
+    const key = `${end.slice(0, 6)}_wk${start}::luopan`;
+    const payload = store[key];
+    addMapping(state, {
+      contract_id: "luopan.business.wtd",
+      domain: "全店成交",
+      authoritative_source: "抖音电商罗盘·全店成交分析",
+      touchpoint_or_sell_type: "全店",
+      carrier_or_layer: "成交汇总",
+      due_date_or_period: `${start}-${end}`,
+      expected_table_or_api: "成交分析（周一至目标日）",
+      input_unit: true,
+      state: payload ? "present" : "missing",
+      evidence: key,
+    });
+    if (!payload) {
+      addIssue(state, "not_imported", {
+        contract_id: "luopan.business.wtd", date_or_period: `${start}-${end}`, domain: "全店成交",
+        source: "罗盘", touchpoint: "全店", layer: "成交汇总", item: "成交分析",
+        reason: `中央数据缺少目标周键 ${key}`,
+      });
+      return;
+    }
+    const expectedDates = daysBetween(start, end);
+    for (const sheet of REQUIRED_LUOPAN_SHEETS) {
+      const rows = payload.sheets?.[sheet];
+      if (!Array.isArray(rows)) {
+        addIssue(state, "table_missing", {
+          contract_id: "luopan.business.wtd", date_or_period: `${start}-${end}`, domain: "全店成交",
+          source: "罗盘", touchpoint: "全店", layer: "成交汇总", item: sheet,
+          reason: `成交分析缺少工作表 ${sheet}`,
+        });
+        continue;
+      }
+      const actualDates = [...new Set(rows.map((row) => cleanDate(row?.日期)).filter(Boolean))].sort();
+      const missing = expectedDates.filter((day) => !actualDates.includes(day));
+      const extra = actualDates.filter((day) => !expectedDates.includes(day));
+      if (missing.length || extra.length) {
+        addIssue(state, "content_date_mismatch", {
+          contract_id: "luopan.business.wtd", date_or_period: `${start}-${end}`, domain: "全店成交",
+          source: "罗盘", touchpoint: "全店", layer: "成交汇总", item: sheet,
+          reason: `表内日期与请求周期不一致；缺少 ${missing.join("、") || "无"}；多出 ${extra.join("、") || "无"}`,
+        });
+      }
+    }
+  }
+
+  function validateProducts(state) {
+    const from = state.contract.product_daily_from;
+    const start = cleanDate(from) > state.target ? state.target : cleanDate(from);
+    const days = daysBetween(start, state.target);
+    const taskProductPeriods = Array.isArray(state.task?.productPeriods)
+      ? state.task.productPeriods
+      : (state.task?.productPeriods ? [state.task.productPeriods] : (state.task?.productPeriod ? [state.task.productPeriod] : []));
+    const inputDays = new Set(taskProductPeriods.flatMap((period) => daysBetween(period?.start, period?.end)));
+    for (const day of days) {
+      for (const combo of state.contract.product_combinations || []) {
+        const key = `rng${day}_${day}::p_${combo.sell_type}_${combo.carrier}`;
+        const payload = state.store[key];
+        const contractId = `luopan.product.${combo.sell_type}.${combo.carrier}`;
+        addMapping(state, {
+          contract_id: contractId,
+          domain: "商品成交",
+          authoritative_source: "抖音电商罗盘·成交商品表",
+          touchpoint_or_sell_type: `${combo.sell_type}×${combo.carrier}`,
+          carrier_or_layer: "成交商品表",
+          due_date_or_period: day,
+          expected_table_or_api: `商品列表 ${combo.sell_type}×${combo.carrier}`,
+          input_unit: inputDays.has(day),
+          state: payload ? "present" : "missing",
+          evidence: key,
+        });
+        if (!payload) {
+          addIssue(state, "table_missing", {
+            contract_id: contractId, date_or_period: day, domain: "商品成交", source: "罗盘",
+            touchpoint: combo.touchpoint, layer: "成交商品表", item: `${combo.sell_type}×${combo.carrier}`,
+            reason: `缺少 ${day} 的成交商品表 ${combo.sell_type}×${combo.carrier}`,
+          });
+          continue;
+        }
+        const meta = payload._product || {};
+        if (cleanDate(meta.start) !== day || cleanDate(meta.end) !== day) {
+          addIssue(state, "content_date_mismatch", {
+            contract_id: contractId, date_or_period: day, domain: "商品成交", source: "罗盘",
+            touchpoint: combo.touchpoint, layer: "成交商品表", item: `${combo.sell_type}×${combo.carrier}`,
+            reason: `中央键为 ${day}，元数据日期为 ${meta.start || "空"}-${meta.end || "空"}`,
+          });
+        }
+        const metaSellType = String(meta.sellType || "") === "自营" ? "自卖" : String(meta.sellType || "");
+        if (metaSellType !== combo.sell_type || String(meta.carrier || "") !== combo.carrier) {
+          addIssue(state, "dimension_mismatch", {
+            contract_id: contractId, date_or_period: day, domain: "商品成交", source: "罗盘",
+            touchpoint: combo.touchpoint, layer: "成交商品表", item: `${combo.sell_type}×${combo.carrier}`,
+            reason: `元数据售卖类型/载体为 ${meta.sellType || "空"}×${meta.carrier || "空"}`,
+          });
+        }
+        const rows = sourceRows(payload);
+        if (!rows.length) {
+          addIssue(state, "content_anomaly", {
+            contract_id: contractId, date_or_period: day, domain: "商品成交", source: "罗盘",
+            touchpoint: combo.touchpoint, layer: "成交商品表", item: `${combo.sell_type}×${combo.carrier}`,
+            reason: "表格为空且没有独立的有效零值覆盖标记，不能按完整处理",
+          });
+          continue;
+        }
+        rows.forEach((row, index) => {
+          const missing = missingFields(row, REQUIRED_PRODUCT_FIELDS);
+          if (missing.length) {
+            addIssue(state, "required_field_missing", {
+              contract_id: contractId, date_or_period: day, domain: "商品成交", source: "罗盘",
+              touchpoint: combo.touchpoint, layer: "成交商品表", item: `${combo.sell_type}×${combo.carrier}`,
+              reason: `第${index + 1}行缺少字段：${missing.join("、")}`,
+            });
+          }
+          const productMetrics = Object.fromEntries(REQUIRED_PRODUCT_NUMERIC_FIELDS.map((field) => {
+            const value = row?.[field];
+            const text = String(value == null ? "" : value).trim();
+            const zeroMarker = ["-", "--", "—"].includes(text);
+            const number = zeroMarker ? 0 : Number(value);
+            return [field, { valid: text !== "" && Number.isFinite(number) && number >= 0, number, zeroMarker }];
+          }));
+          const invalidNumeric = REQUIRED_PRODUCT_NUMERIC_FIELDS.filter((field) => !productMetrics[field].valid);
+          const inconsistentZeroMarker = REQUIRED_PRODUCT_NUMERIC_FIELDS.some((field) => productMetrics[field].zeroMarker)
+            && REQUIRED_PRODUCT_NUMERIC_FIELDS.some((field) => productMetrics[field].number !== 0);
+          if (inconsistentZeroMarker) invalidNumeric.push("零值占位与非零金额/订单冲突");
+          if (invalidNumeric.length) {
+            addIssue(state, "content_anomaly", {
+              contract_id: contractId, date_or_period: day, domain: "商品成交", source: "罗盘",
+              touchpoint: combo.touchpoint, layer: "成交商品表", item: `${combo.sell_type}×${combo.carrier}`,
+              reason: `第${index + 1}行数值字段为空、非数字或负数：${invalidNumeric.join("、")}`,
+            });
+          }
+          if (cleanDate(row?.统计周期) !== day) {
+            addIssue(state, "content_date_mismatch", {
+              contract_id: contractId, date_or_period: day, domain: "商品成交", source: "罗盘",
+              touchpoint: combo.touchpoint, layer: "成交商品表", item: `${combo.sell_type}×${combo.carrier}`,
+              reason: `第${index + 1}行统计周期为 ${row?.统计周期 || "空"}`,
+            });
+          }
+          if (String(row?.["自卖/合作"] || "") !== combo.sell_type || String(row?.载体 || "") !== combo.carrier) {
+            addIssue(state, "dimension_mismatch", {
+              contract_id: contractId, date_or_period: day, domain: "商品成交", source: "罗盘",
+              touchpoint: combo.touchpoint, layer: "成交商品表", item: `${combo.sell_type}×${combo.carrier}`,
+              reason: `第${index + 1}行为 ${row?.["自卖/合作"] || "空"}×${row?.载体 || "空"}`,
+            });
+          }
+        });
+      }
+    }
+  }
+
+  function expectedRefundPeriods(state) {
+    if (Array.isArray(state.task?.refundPeriods) && state.task.refundPeriods.length) return state.task.refundPeriods;
+    const floor = cleanDate(state.contract.refund_floor);
+    const rolling = addDays(state.target, -(Number(state.contract.refund_window_days || 45) - 1));
+    const start = rolling < floor ? floor : rolling;
+    const dailyFrom = cleanDate(state.contract.refund_daily_from);
+    const out = [];
+    if (start < dailyFrom) {
+      out.push({ start, end: addDays(dailyFrom, -1), kind: "range", coverage: daysBetween(start, addDays(dailyFrom, -1)) });
+    }
+    for (const day of daysBetween(start < dailyFrom ? dailyFrom : start, state.target)) {
+      out.push({ start: day, end: day, kind: "day", coverage: [day] });
+    }
+    return out;
+  }
+
+  function validateRefunds(state) {
+    const periods = expectedRefundPeriods(state);
+    for (const period of periods) {
+      const start = cleanDate(period.start);
+      const end = cleanDate(period.end);
+      const key = `refund::rng${start}_${end}`;
+      const payload = state.store[key];
+      addMapping(state, {
+        contract_id: `refund.${period.kind}.${start}.${end}`,
+        domain: "退款",
+        authoritative_source: "抖音电商罗盘·退款分析",
+        touchpoint_or_sell_type: "全店+商品",
+        carrier_or_layer: period.kind === "day" ? "支付日逐日表" : "历史合并区间",
+        due_date_or_period: start === end ? start : `${start}-${end}`,
+        expected_table_or_api: period.kind === "day" ? "退款逐日表/有效零退款覆盖" : "退款历史区间表",
+        input_unit: true,
+        state: payload ? "present" : "missing",
+        evidence: key,
+      });
+      if (!payload?._refund) {
+        addIssue(state, "table_missing", {
+          contract_id: `refund.${period.kind}.${start}.${end}`, date_or_period: start === end ? start : `${start}-${end}`,
+          domain: "退款", source: "罗盘", touchpoint: "全店+商品", layer: period.kind === "day" ? "支付日逐日表" : "历史合并区间",
+          item: key, reason: `缺少退款数据 ${key}`,
+        });
+        continue;
+      }
+      const rf = payload._refund;
+      if (cleanDate(rf.start) !== start || cleanDate(rf.end) !== end || String(rf.kind || "") !== String(period.kind || "")) {
+        addIssue(state, "content_date_mismatch", {
+          contract_id: `refund.${period.kind}.${start}.${end}`, date_or_period: `${start}-${end}`, domain: "退款", source: "罗盘",
+          touchpoint: "全店+商品", layer: period.kind === "day" ? "支付日逐日表" : "历史合并区间", item: key,
+          reason: `退款元数据为 ${rf.kind || "空"} ${rf.start || "空"}-${rf.end || "空"}`,
+        });
+      }
+      const expectedCoverage = Array.isArray(period.coverage) && period.coverage.length ? period.coverage.map(cleanDate) : daysBetween(start, end);
+      const coverage = Array.isArray(rf.coverage) ? rf.coverage.map(cleanDate) : [];
+      const missingCoverage = expectedCoverage.filter((day) => !coverage.includes(day));
+      const extraCoverage = coverage.filter((day) => !expectedCoverage.includes(day));
+      if (missingCoverage.length || extraCoverage.length) {
+        addIssue(state, "coverage_gap", {
+          contract_id: `refund.${period.kind}.${start}.${end}`, date_or_period: `${start}-${end}`, domain: "退款", source: "罗盘",
+          touchpoint: "全店+商品", layer: period.kind === "day" ? "支付日逐日表" : "历史合并区间", item: key,
+          reason: `退款覆盖不连续；缺少 ${missingCoverage.join("、") || "无"}；越界 ${extraCoverage.join("、") || "无"}`,
+        });
+      }
+      const rows = Array.isArray(rf.rows) ? rf.rows : [];
+      if (period.kind === "range") {
+        const invalid = rows.filter((row) => row?.aggregateOnly !== true || row?.timeBasis !== "period-aggregate" || cleanDate(row?.date));
+        if (invalid.length) {
+          addIssue(state, "content_anomaly", {
+            contract_id: `refund.${period.kind}.${start}.${end}`, date_or_period: `${start}-${end}`, domain: "退款", source: "罗盘",
+            touchpoint: "全店+商品", layer: "历史合并区间", item: key,
+            reason: `${invalid.length}行不符合 aggregateOnly=true、period-aggregate、无伪造逐日日期的历史规则`,
+          });
+        }
+      } else {
+        const invalid = rows.filter((row) => cleanDate(row?.date) !== start || row?.aggregateOnly === true || row?.timeBasis === "period-aggregate");
+        if (invalid.length) {
+          addIssue(state, "content_date_mismatch", {
+            contract_id: `refund.${period.kind}.${start}.${end}`, date_or_period: start, domain: "退款", source: "罗盘",
+            touchpoint: "全店+商品", layer: "支付日逐日表", item: key,
+            reason: `${invalid.length}行不是目标支付日 ${start} 的逐日事实`,
+          });
+        }
+      }
+    }
+  }
+
+  function validateFeishu(state) {
+    const report = state.feishu;
+    const cfg = state.contract.feishu_live || {};
+    addMapping(state, {
+      contract_id: "feishu.live.workbook",
+      domain: "飞书直播数据",
+      authoritative_source: cfg.source || "飞书在线表格（只读）",
+      touchpoint_or_sell_type: cfg.room || "面霜正装",
+      carrier_or_layer: "场次层",
+      due_date_or_period: `截至${state.target}`,
+      expected_table_or_api: "工作簿及目标月份Sheet",
+      input_unit: false,
+      required: cfg.required !== false,
+      state: report?.ok ? "present" : "missing",
+      evidence: report?.feishu?.revision ? `revision=${report.feishu.revision}` : "",
+    });
+    if (!report) {
+      addIssue(state, "not_pulled", {
+        contract_id: "feishu.live.workbook", date_or_period: state.target, domain: "飞书直播数据", source: "飞书在线表格（只读）",
+        touchpoint: cfg.room || "面霜正装", layer: "场次层", item: "工作簿", reason: "没有同批飞书读取审计报告",
+      });
+      return;
+    }
+    const revision = Number(report?.feishu?.revision);
+    const before = Number(report?.feishu?.revision_before ?? revision);
+    const after = Number(report?.feishu?.revision_after ?? revision);
+    if (!Number.isFinite(revision) || before !== after || before !== revision || report?.guards?.revision_consistent === false) {
+      addIssue(state, "revision_mismatch", {
+        contract_id: "feishu.live.workbook", date_or_period: state.target, domain: "飞书直播数据", source: "飞书在线表格（只读）",
+        touchpoint: cfg.room || "面霜正装", layer: "场次层", item: "工作簿 revision",
+        reason: `读取前后 revision 不一致：${Number.isFinite(before) ? before : "缺失"} → ${Number.isFinite(after) ? after : "缺失"}`,
+      });
+    }
+    if (Array.isArray(report?.feishu?.write_operations) && report.feishu.write_operations.length) {
+      addIssue(state, "content_anomaly", {
+        contract_id: "feishu.live.workbook", date_or_period: state.target, domain: "飞书直播数据", source: "飞书在线表格（只读）",
+        touchpoint: cfg.room || "面霜正装", layer: "场次层", item: "读取操作", reason: "审计发现飞书写操作，违反只读边界",
+      });
+    }
+    const schemas = Array.isArray(report?.gates?.schemas) ? report.gates.schemas : [];
+    if (!schemas.length) {
+      addIssue(state, "table_missing", {
+        contract_id: "feishu.live.workbook", date_or_period: state.target, domain: "飞书直播数据", source: "飞书在线表格（只读）",
+        touchpoint: cfg.room || "面霜正装", layer: "场次层", item: "月份Sheet", reason: "没有目标月份Sheet校验证据",
+      });
+    }
+    schemas.forEach((schema) => {
+      addMapping(state, {
+        contract_id: `feishu.live.sheet.${schema?.sheet_name || "unknown"}`,
+        domain: "飞书直播数据",
+        authoritative_source: cfg.source || "飞书在线表格（只读）",
+        touchpoint_or_sell_type: cfg.room || "面霜正装",
+        carrier_or_layer: `${schema?.sheet_name || "未知"}月Sheet`,
+        due_date_or_period: `截至${state.target}`,
+        expected_table_or_api: `Sheet ${schema?.sheet_name || "未知"}`,
+        required: cfg.required !== false,
+        input_unit: true,
+        state: "present",
+        evidence: `validated_source_rows=${schema?.validated_source_rows ?? ""}`,
+      });
+      const fields = Object.keys(schema?.columns || {});
+      const missing = (cfg.required_fields || []).filter((field) => !fields.includes(field));
+      const badHeaders = (schema?.header_checks || []).filter((check) => check?.ok !== true);
+      if (missing.length || badHeaders.length) {
+        addIssue(state, "required_field_missing", {
+          contract_id: "feishu.live.workbook", date_or_period: state.target, domain: "飞书直播数据", source: "飞书在线表格（只读）",
+          touchpoint: cfg.room || "面霜正装", layer: "场次层", item: `${schema?.sheet_name || "未知"}月Sheet`,
+          reason: `关键字段缺失 ${missing.join("、") || "无"}；表头异常 ${badHeaders.map((x) => x.field).join("、") || "无"}`,
+        });
+      }
+    });
+    const incomplete = Array.isArray(report?.gates?.incomplete_dates) ? report.gates.incomplete_dates : [];
+    if (incomplete.length || report?.guards?.source_rows_complete !== true || report?.guards?.parser_source_sums_match !== true) {
+      addIssue(state, "content_anomaly", {
+        contract_id: "feishu.live.workbook", date_or_period: state.target, domain: "飞书直播数据", source: "飞书在线表格（只读）",
+        touchpoint: cfg.room || "面霜正装", layer: "场次层", item: "源表行/公式",
+        reason: `存在空值、公式错误或汇总不一致；异常日期 ${incomplete.join("、") || "未列出"}`,
+      });
+    }
+    const cutoffAsOf = cleanDate(report?.cutoff?.as_of);
+    if (cutoffAsOf !== state.target) {
+      addIssue(state, "coverage_gap", {
+        contract_id: "feishu.live.workbook", date_or_period: state.target, domain: "飞书直播数据", source: "飞书在线表格（只读）",
+        touchpoint: cfg.room || "面霜正装", layer: "场次层", item: "截至目标日已结束场次",
+        reason: `读取截止日 ${report?.cutoff?.as_of || "缺失"} 与目标日 ${state.target} 不一致`,
+      });
+    }
+    if (report?.guards?.expected_session_roster_complete !== true) {
+      addIssue(state, "content_anomaly", {
+        contract_id: "feishu.live.session_roster", date_or_period: state.target, domain: "飞书直播数据", source: "飞书在线表格（只读）",
+        touchpoint: cfg.room || "面霜正装", layer: "场次层", item: "已结束场次名册", severity: "warning",
+        reason: "尚未接入独立的应结束场次名册；当前能识别字段/行异常，但无法独立发现源表整场漏行",
+      });
+    }
+  }
+
+  function scaledMetric(value, scale) {
+    if (value == null || (typeof value === "string" && !value.trim())) return null;
+    const number = Number(value);
+    return Number.isFinite(number) ? Math.round((number + Number.EPSILON) * scale) : null;
+  }
+
+  function summarizeAdRows(rows, sourceKind, expectedDay, allowedAccounts) {
+    const totals = { cost: 0, gmv: 0, orders: 0 };
+    const accounts = {};
+    const invalid = [];
+    for (const [index, row] of rows.entries()) {
+      const date = cleanDate(sourceKind === "bundle" ? row?.date : row?.["日期"]);
+      const accountId = String(sourceKind === "bundle" ? row?.advertiser_id : row?.["广告账户ID"] || "");
+      const cost = scaledMetric(sourceKind === "bundle" ? row?.cost : row?.["整体消耗"], 100);
+      const gmv = scaledMetric(sourceKind === "bundle" ? row?.gmv : row?.["整体成交金额"], 100);
+      const orders = scaledMetric(sourceKind === "bundle" ? row?.orders : row?.["整体成交订单数"], 1000);
+      if (date !== expectedDay || !allowedAccounts.has(accountId) || cost == null || gmv == null || orders == null) {
+        invalid.push({ index, date, account_id: accountId, cost, gmv, orders });
+        continue;
+      }
+      const account = accounts[accountId] || { cost: 0, gmv: 0, orders: 0 };
+      account.cost += cost;
+      account.gmv += gmv;
+      account.orders += orders;
+      accounts[accountId] = account;
+      totals.cost += cost;
+      totals.gmv += gmv;
+      totals.orders += orders;
+    }
+    return { totals, accounts, invalid };
+  }
+
+  function adFactRows(bundle, scope, layerType, day) {
+    const spec = AD_LAYER_FACTS[scope]?.[layerType];
+    if (!spec) return [];
+    const rows = Array.isArray(bundle?.facts?.[spec.fact]) ? bundle.facts[spec.fact] : [];
+    return rows.filter((row) => (
+      cleanDate(row?.date) === day
+      && (!spec.materialType || String(row?.material_type || "").toLowerCase() === spec.materialType)
+    ));
+  }
+
+  function sameAdSummary(left, right, accountIds) {
+    if (JSON.stringify(left.totals) !== JSON.stringify(right.totals)) return false;
+    return accountIds.every((accountId) => JSON.stringify(
+      left.accounts[accountId] || { cost: 0, gmv: 0, orders: 0 },
+    ) === JSON.stringify(
+      right.accounts[accountId] || { cost: 0, gmv: 0, orders: 0 },
+    ));
+  }
+
+  function successfulStatusRow(row) {
+    if (!row || row.status !== "ok") return false;
+    const hasExpected = Object.prototype.hasOwnProperty.call(row, "subcalls_expected");
+    const hasCompleted = Object.prototype.hasOwnProperty.call(row, "subcalls_completed");
+    if (hasExpected !== hasCompleted) return false;
+    if (hasExpected) {
+      const expected = Number(row.subcalls_expected);
+      const completed = Number(row.subcalls_completed);
+      if (!Number.isFinite(expected) || !Number.isFinite(completed) || expected < 0 || expected !== completed) return false;
+    }
+    return true;
+  }
+
+  function validateAdScope(state, scope, cfg) {
+    if (cfg.required === false) return;
+    const bundle = state.adBundles?.[scope];
+    const label = cfg.label;
+    const windowStart = cleanDate(bundle?.window?.start);
+    const windowEnd = cleanDate(bundle?.window?.end);
+    const sourceRange = windowStart && windowEnd ? `${windowStart}-${windowEnd}` : state.target;
+    if (!bundle) {
+      addIssue(state, "not_pulled", {
+        contract_id: `ads.${scope}.bundle`, date_or_period: state.target, domain: "全部投流数据", source: "巨量千川API",
+        touchpoint: label, layer: "源端批次", item: label, reason: `没有 ${label} 的同批API证据包`,
+      });
+      return;
+    }
+    if (bundle.complete !== true || cleanDate(bundle?.window?.end) !== state.target) {
+      addIssue(state, bundle.complete === true ? "stale" : "not_pulled", {
+        contract_id: `ads.${scope}.bundle`, date_or_period: sourceRange, domain: "全部投流数据", source: "巨量千川API",
+        touchpoint: label, layer: "源端批次", item: label,
+        reason: `API证据包 complete=${String(bundle.complete)}，窗口结束日 ${bundle?.window?.end || "缺失"}，目标日 ${state.target}`,
+      });
+    }
+    const statuses = Array.isArray(bundle.statuses) ? bundle.statuses : [];
+    const statusGroups = new Map();
+    for (const row of statuses) {
+      const key = `${String(row?.advertiser_id || "")}|${String(row?.spec || "")}`;
+      if (!statusGroups.has(key)) statusGroups.set(key, []);
+      statusGroups.get(key).push(row);
+    }
+    const expectedAccountStatusKeys = (cfg.accounts || []).flatMap((account) => (
+      (cfg.required_source_specs || []).map((spec) => `${String(account.advertiser_id)}|${spec}`)
+    ));
+    const expectedGlobalStatusKeys = (cfg.global_source_specs || [])
+      .filter((spec) => spec !== "daren_plan_identity")
+      .map((spec) => `|${spec}`);
+    const allowedStatusKeys = new Set([...expectedAccountStatusKeys, ...expectedGlobalStatusKeys]);
+    const duplicateStatusKeys = [...statusGroups.entries()].filter(([, rows]) => rows.length !== 1).map(([key, rows]) => ({ key, count: rows.length }));
+    const unexpectedStatusKeys = [...statusGroups.keys()].filter((key) => !allowedStatusKeys.has(key));
+    if (duplicateStatusKeys.length || unexpectedStatusKeys.length) {
+      addIssue(state, "content_anomaly", {
+        contract_id: `ads.${scope}.status_matrix`, date_or_period: sourceRange,
+        domain: "全部投流数据", source: "巨量千川API", touchpoint: label, layer: "源端状态矩阵", item: label,
+        reason: `状态矩阵必须一账户一接口一条；重复 ${duplicateStatusKeys.map((row) => `${row.key}×${row.count}`).join("、") || "无"}；意外 ${unexpectedStatusKeys.join("、") || "无"}`,
+      });
+    }
+    for (const account of cfg.accounts || []) {
+      for (const spec of cfg.required_source_specs || []) {
+        const rows = statusGroups.get(`${String(account.advertiser_id)}|${spec}`) || [];
+        const row = rows.length === 1 ? rows[0] : null;
+        addMapping(state, {
+          contract_id: `ads.${scope}.source.${account.advertiser_id}.${spec}`,
+          domain: "全部投流数据",
+          authoritative_source: "巨量千川API",
+          touchpoint_or_sell_type: `${label}·${account.name}`,
+          carrier_or_layer: spec,
+          due_date_or_period: sourceRange,
+          expected_table_or_api: spec,
+          input_unit: true,
+          state: row?.status === "ok" ? "present" : "missing",
+          evidence: row ? `status=${row.status}` : "",
+        });
+        if (!successfulStatusRow(row)) {
+          addIssue(state, "not_pulled", {
+            contract_id: `ads.${scope}.source.${account.advertiser_id}.${spec}`, date_or_period: sourceRange,
+            domain: "全部投流数据", source: "巨量千川API", touchpoint: label, layer: spec, item: account.name,
+            reason: !row ? "正式接口没有状态证据" : `接口状态 ${row.status}; 分片 ${row.subcalls_completed ?? "?"}/${row.subcalls_expected ?? "?"}`,
+          });
+        }
+      }
+    }
+    for (const spec of cfg.global_source_specs || []) {
+      if (spec === "daren_plan_identity") {
+        const rows = Array.isArray(bundle.daren_statuses) ? bundle.daren_statuses : [];
+        const expectedAccountIds = new Set((cfg.accounts || []).map((account) => String(account.advertiser_id)));
+        const unexpectedRows = rows.filter((row) => !expectedAccountIds.has(String(row?.advertiser_id || "")));
+        for (const account of cfg.accounts || []) {
+          const matches = rows.filter((item) => String(item?.advertiser_id || "") === String(account.advertiser_id));
+          const row = matches.length === 1 ? matches[0] : null;
+          const explicitStatusOk = !Object.prototype.hasOwnProperty.call(row || {}, "status") || row.status === "ok";
+          const ok = bundle.daren_complete === true
+            && matches.length === 1
+            && explicitStatusOk
+            && Number(row?.pages) >= 1
+            && Number(row?.active_identity_coverage) === 1;
+          addMapping(state, {
+            contract_id: `ads.${scope}.source.${account.advertiser_id}.daren_plan_identity`,
+            domain: "全部投流数据", authoritative_source: "巨量千川API", touchpoint_or_sell_type: `${label}·${account.name}`,
+            carrier_or_layer: "达人账号/抖音号层", due_date_or_period: sourceRange,
+            expected_table_or_api: "uni_promotion list", input_unit: true, state: ok ? "present" : "missing",
+            evidence: row ? `coverage=${row.active_identity_coverage}` : "",
+          });
+          if (!ok) {
+            addIssue(state, "not_pulled", {
+              contract_id: `ads.${scope}.source.${account.advertiser_id}.daren_plan_identity`, date_or_period: sourceRange,
+              domain: "全部投流数据", source: "巨量千川API", touchpoint: label, layer: "达人账号层", item: account.name,
+              reason: `uni_promotion list 状态/分页/活跃计划身份覆盖未闭合；状态=${row?.status ?? "未声明"}，记录数=${matches.length}`,
+            });
+          }
+        }
+        if (unexpectedRows.length) {
+          addIssue(state, "content_anomaly", {
+            contract_id: `ads.${scope}.global.daren_plan_identity`, date_or_period: sourceRange,
+            domain: "全部投流数据", source: "巨量千川API", touchpoint: label, layer: "达人账号层", item: label,
+            reason: `uni_promotion list 出现 ${unexpectedRows.length} 条非合同账户状态记录`,
+          });
+        }
+        continue;
+      }
+      let ok = false;
+      let evidence = "";
+      const rows = statusGroups.get(`|${spec}`) || [];
+      const row = rows.length === 1 ? rows[0] : null;
+      ok = successfulStatusRow(row);
+      evidence = row ? `status=${row.status}` : "";
+      addMapping(state, {
+        contract_id: `ads.${scope}.global.${spec}`, domain: "全部投流数据", authoritative_source: "巨量千川API",
+        touchpoint_or_sell_type: label, carrier_or_layer: spec, due_date_or_period: sourceRange,
+        expected_table_or_api: spec, state: ok ? "present" : "missing", evidence,
+        input_unit: false,
+      });
+      if (!ok) {
+        addIssue(state, "not_pulled", {
+          contract_id: `ads.${scope}.global.${spec}`, date_or_period: sourceRange, domain: "全部投流数据", source: "巨量千川API",
+          touchpoint: label, layer: spec, item: label, reason: `${spec} 没有完整成功证据`,
+        });
+      }
+    }
+    const start = windowStart || state.target;
+    const end = windowEnd || state.target;
+    const accountIds = (cfg.accounts || []).map((account) => String(account.advertiser_id));
+    const allowedAccounts = new Set(accountIds);
+    for (const layer of cfg.store_layers || []) {
+      if (layer.required === false) {
+        addMapping(state, {
+          contract_id: `ads.${scope}.store.${layer.type}`, domain: "全部投流数据", authoritative_source: "中央数据",
+          touchpoint_or_sell_type: label, carrier_or_layer: layer.label, due_date_or_period: `${start}-${end}`,
+          expected_table_or_api: layer.type, required: false, state: "optional", evidence: "非必需层，不参与缺失报警",
+        });
+        continue;
+      }
+      for (const day of daysBetween(start, end)) {
+        const key = `tlapi::${cfg.channel}::${layer.type}::rng${day}_${day}`;
+        const payload = state.store[key];
+        addMapping(state, {
+          contract_id: `ads.${scope}.store.${layer.type}.${day}`, domain: "全部投流数据", authoritative_source: "中央数据",
+          touchpoint_or_sell_type: label, carrier_or_layer: layer.label, due_date_or_period: day,
+          expected_table_or_api: layer.type, state: payload ? "present" : "missing", evidence: key,
+        });
+        if (!payload) {
+          addIssue(state, "not_imported", {
+            contract_id: `ads.${scope}.store.${layer.type}.${day}`, date_or_period: day, domain: "全部投流数据", source: "中央数据",
+            touchpoint: label, layer: layer.label, item: key,
+            reason: `源端批次包含该日期，但中央数据缺少 ${layer.label} 日粒度键`,
+          });
+          continue;
+        }
+        const meta = payload._tl || {};
+        const sourceWindowStart = cleanDate(meta?.source_window?.start);
+        const sourceWindowEnd = cleanDate(meta?.source_window?.end);
+        if (
+          meta.chan !== cfg.channel
+          || meta.type !== layer.type
+          || meta.scope !== scope
+          || meta.source !== "qianchuan_api"
+          || cleanDate(meta.start) !== day
+          || cleanDate(meta.end) !== day
+          || sourceWindowStart !== windowStart
+          || sourceWindowEnd !== windowEnd
+        ) {
+          addIssue(state, "dimension_mismatch", {
+            contract_id: `ads.${scope}.store.${layer.type}.${day}`, date_or_period: day, domain: "全部投流数据", source: "中央数据",
+            touchpoint: label, layer: layer.label, item: key,
+            reason: `投流元数据为 ${meta.scope || "空"}/${meta.chan || "空"}/${meta.type || "空"}/${meta.start || "空"}-${meta.end || "空"}；源窗口 ${sourceWindowStart || "空"}-${sourceWindowEnd || "空"}`,
+          });
+        }
+        const bundleRows = adFactRows(bundle, scope, layer.type, day);
+        const storeRows = sourceRows(payload);
+        const bundleSummary = summarizeAdRows(bundleRows, "bundle", day, allowedAccounts);
+        const storeSummary = summarizeAdRows(storeRows, "store", day, allowedAccounts);
+        const layerFactSpec = AD_LAYER_FACTS[scope]?.[layer.type];
+        const sourceStatusesOk = Boolean(layerFactSpec) && (layerFactSpec.statusSpecs || []).every((spec) => (
+          (cfg.accounts || []).every((account) => {
+            const rows = statusGroups.get(`${String(account.advertiser_id)}|${spec}`) || [];
+            return rows.length === 1 && successfulStatusRow(rows[0]);
+          })
+        ));
+        const darenZeroProofOk = layer.type !== "daren" || (
+          bundle.daren_complete === true
+          && (cfg.accounts || []).every((account) => {
+            const rows = (bundle.daren_statuses || []).filter((row) => String(row?.advertiser_id || "") === String(account.advertiser_id));
+            const row = rows.length === 1 ? rows[0] : null;
+            return rows.length === 1
+              && (!Object.prototype.hasOwnProperty.call(row, "status") || row.status === "ok")
+              && Number(row?.pages) >= 1
+              && Number(row?.active_identity_coverage) === 1;
+          })
+        );
+        const sourceIsTrueZero = bundleSummary.totals.cost === 0
+          && bundleSummary.totals.gmv === 0
+          && bundleSummary.totals.orders === 0;
+        if (bundleSummary.invalid.length || storeSummary.invalid.length) {
+          addIssue(state, "content_anomaly", {
+            contract_id: `ads.${scope}.store.${layer.type}.${day}`, date_or_period: day, domain: "全部投流数据", source: "中央数据",
+            touchpoint: label, layer: layer.label, item: key,
+            reason: `源端/中央行的日期、账户或金额字段无效；源端 ${bundleSummary.invalid.length} 行，中央 ${storeSummary.invalid.length} 行`,
+          });
+        } else if (!storeRows.length) {
+          if (!sourceIsTrueZero || !sourceStatusesOk || !darenZeroProofOk) {
+            addIssue(state, "not_imported", {
+              contract_id: `ads.${scope}.store.${layer.type}.${day}`, date_or_period: day, domain: "全部投流数据", source: "中央数据",
+              touchpoint: label, layer: layer.label, item: key,
+              reason: `必需层为空，且未形成同批 success-zero 闭环；源端合计 cost=${bundleSummary.totals.cost}/gmv=${bundleSummary.totals.gmv}/orders=${bundleSummary.totals.orders}，状态证据=${sourceStatusesOk && darenZeroProofOk ? "ok" : "不完整"}`,
+            });
+          }
+        } else if (!sameAdSummary(bundleSummary, storeSummary, accountIds)) {
+          addIssue(state, "content_anomaly", {
+            contract_id: `ads.${scope}.store.${layer.type}.${day}`, date_or_period: day, domain: "全部投流数据", source: "中央数据",
+            touchpoint: label, layer: layer.label, item: key,
+            reason: `中央层与同批API证据包按账户金额不闭合；源端 ${JSON.stringify(bundleSummary.totals)}，中央 ${JSON.stringify(storeSummary.totals)}`,
+          });
+        }
+      }
+    }
+  }
+
+  function validatePlatformLabels(state) {
+    const cfg = state.contract.platform_material_labels || {};
+    const snapshot = state.platformLabels;
+    const required = true;
+    const severity = "error";
+    addMapping(state, {
+      contract_id: "platform.material.labels", domain: "素材身份校验", authoritative_source: "千川平台素材标签导出",
+      touchpoint_or_sell_type: "自营货架+自播", carrier_or_layer: "平台标签层", due_date_or_period: state.target,
+      expected_table_or_api: "platform_material_labels_latest.json", required,
+      state: snapshot ? "present" : "missing", evidence: snapshot?.generated_at || "",
+      input_unit: true,
+    });
+    if (!snapshot) {
+      addIssue(state, "not_pulled", {
+        contract_id: "platform.material.labels", date_or_period: state.target, domain: "素材身份校验", source: "千川平台素材标签导出",
+        touchpoint: "自营货架+自播", layer: "平台标签层", item: "平台素材标签快照", required, severity,
+        reason: `缺少平台素材标签快照；${cfg.reason || "该层仅作二层冲突校验"}`,
+      });
+      return;
+    }
+    const source = snapshot.source && typeof snapshot.source === "object" ? snapshot.source : {};
+    const expectedAccounts = [
+      ...LOCKED_AD_SCOPES.self_shelf.accounts,
+      ...LOCKED_AD_SCOPES.self_live.accounts,
+    ];
+    const sourceAccounts = Array.isArray(source.accounts) ? source.accounts.map(String) : [];
+    const requestSetSha = String(source.request_set_sha256 || "").toUpperCase();
+    const evidenceComplete = (
+      snapshot.complete === true
+      && source.kind === cfg.source_kind
+      && cleanDate(source.as_of_date) === state.target
+      && exactStringSet(sourceAccounts, expectedAccounts)
+      && Number(source.request_count) >= 1
+      && Number(source.request_error_count) === 0
+      && /^[A-F0-9]{64}$/.test(requestSetSha)
+    );
+    if (!evidenceComplete) {
+      addIssue(state, "content_anomaly", {
+        contract_id: "platform.material.labels", date_or_period: state.target, domain: "素材身份校验", source: "千川素材库API",
+        touchpoint: "自营货架+自播", layer: "平台标签层", item: "平台素材标签快照",
+        reason: `qianchuan/video/get同批证据不完整：complete=${snapshot.complete === true}、kind=${source.kind || "缺失"}、as_of=${source.as_of_date || "缺失"}、accounts=${sourceAccounts.length}/${expectedAccounts.length}、requests=${Number(source.request_count || 0)}、errors=${Number(source.request_error_count || 0)}`,
+      });
+    }
+    const sourceEnd = cleanDate(snapshot?.source?.window?.end);
+    const generatedText = typeof snapshot.generated_at === "string" ? snapshot.generated_at.trim() : "";
+    const generated = generatedText ? isoToShanghaiParts(generatedText) : { day: "", hour: null, valid: false, timestamp: NaN };
+    const generatedDay = generated.day;
+    const age = generated.valid ? Math.max(0, daysBetween(addDays(generatedDay, 1), state.target).length) : Infinity;
+    const futureTimestamp = generated.valid && generated.timestamp > state.generatedAtTimestamp;
+    if (!generated.valid || futureTimestamp || !sourceEnd || sourceEnd < state.target || age > Number(cfg.max_age_days || 1)) {
+      addIssue(state, "stale", {
+        contract_id: "platform.material.labels", date_or_period: state.target, domain: "素材身份校验", source: "千川平台素材标签导出",
+        touchpoint: "自营货架+自播", layer: "平台标签层", item: "平台素材标签快照", required, severity,
+        reason: `快照生成时间 ${snapshot.generated_at || "缺失"}（${generated.valid ? (futureTimestamp ? "未来时间" : "可解析") : "不可解析"}），源数据截止 ${sourceEnd || "缺失"}，目标日 ${state.target}；${cfg.reason || "该层仅作二层冲突校验"}`,
+      });
+    }
+    const unmatched = Number(snapshot.unmatched_material_count || 0);
+    const conflicts = Number(snapshot.duplicate_conflict_count || 0);
+    const unknownSources = Number(snapshot.unknown_source_count || 0);
+    if (unmatched > 0 || conflicts > 0 || unknownSources > 0) {
+      addIssue(state, "content_anomaly", {
+        contract_id: "platform.material.labels.coverage", date_or_period: state.target, domain: "素材身份校验", source: "千川素材库API",
+        touchpoint: "自营货架+自播", layer: "平台标签层", item: "平台素材标签覆盖",
+        required: false, severity: "warning",
+        reason: `同批素材 ${Number(snapshot.requested_material_count || 0)} 个，API命中 ${Number(snapshot.matched_material_count || snapshot.material_count || 0)} 个，未返回 ${unmatched} 个，身份标签冲突 ${conflicts} 个，未知来源枚举 ${unknownSources} 个；未返回项继续按STAR硬证据/标题规则判定，不用旧快照顶替`,
+      });
+    }
+  }
+
+  function evaluate(input) {
+    validateContract(input.contract);
+    const generatedAtDate = new Date(input.generatedAt || Date.now());
+    if (!Number.isFinite(generatedAtDate.getTime())) throw new Error("generatedAt must be a valid timestamp");
+    const state = {
+      contract: input.contract || {},
+      store: input.store || {},
+      task: input.task || {},
+      feishu: input.feishu || null,
+      adBundles: input.adBundles || {},
+      platformLabels: input.platformLabels || null,
+      target: cleanDate(input.targetDate || input.task?.businessPeriod?.end),
+      generatedAtTimestamp: generatedAtDate.getTime(),
+      issues: [],
+      mapping: [],
+    };
+    if (!/^\d{8}$/.test(state.target)) throw new Error("targetDate must be YYYYMMDD");
+    validateLuopan(state);
+    validateProducts(state);
+    validateRefunds(state);
+    validateFeishu(state);
+    for (const [scope, cfg] of Object.entries(state.contract.advertising || {})) {
+      if (cfg && cfg.channel) validateAdScope(state, scope, cfg);
+    }
+    validatePlatformLabels(state);
+    const issues = stableIssues(state.issues);
+    const blocking = issues.filter((issue) => issue.required && issue.severity === "error" && !["not_due", "optional_layer"].includes(issue.status));
+    return {
+      schema: "gy-data-completeness-report-v1",
+      contract_schema: state.contract.schema || "",
+      contract_version: state.contract.version || "",
+      generated_at: input.generatedAt || new Date().toISOString(),
+      target_date: state.target,
+      source_sha256: input.sourceSha256 || "",
+      daily_cutoff_hour: Number(state.contract.daily_cutoff_hour || 9),
+      ok: blocking.length === 0,
+      blocking_issue_count: blocking.length,
+      warning_issue_count: issues.filter((issue) => issue.severity === "warning").length,
+      issue_count: issues.length,
+      mapping_count: state.mapping.length,
+      authoritative_input_unit_count: state.mapping.filter((row) => row.required && row.input_unit).length,
+      issues,
+      mapping: state.mapping.sort((a, b) => [a.due_date_or_period, a.domain, a.touchpoint_or_sell_type, a.carrier_or_layer].join("|").localeCompare([b.due_date_or_period, b.domain, b.touchpoint_or_sell_type, b.carrier_or_layer].join("|"), "zh-CN", { numeric: true })),
+    };
+  }
+
+  function runtimeIssues(report, nowValue) {
+    if (!report || !/^\d{8}$/.test(cleanDate(report.target_date))) return [];
+    const now = isoToShanghaiParts(nowValue || new Date());
+    const cutoff = Number(report.daily_cutoff_hour || 9);
+    const yesterday = addDays(now.day, -1);
+    const expected = now.hour >= cutoff ? yesterday : addDays(yesterday, -1);
+    const target = cleanDate(report.target_date);
+    const out = [];
+    if (target < expected) {
+      out.push(makeIssue("stale", {
+        status_label: "数据已过期", severity: "error", required: true, contract_id: "runtime.freshness",
+        date_or_period: `${addDays(target, 1)}-${expected}`, domain: "全局数据截止日", source: "页面运行时",
+        touchpoint: "全部", layer: "日更截止", item: "中央快照", reason: `当前应至少更新到 ${expected}，页面仅到 ${target}`,
+      }));
+    } else if (target < yesterday && now.hour < cutoff) {
+      out.push(makeIssue("not_due", {
+        status_label: "尚未到数据截止时间", severity: "info", required: false, contract_id: "runtime.freshness",
+        date_or_period: yesterday, domain: "全局数据截止日", source: "页面运行时", touchpoint: "全部", layer: "日更截止",
+        item: "中央快照", reason: `${yesterday} 数据在北京时间 ${String(cutoff).padStart(2, "0")}:00 后到期，当前不按缺失处理`,
+      }));
+    }
+    return out;
+  }
+
+  return {
+    cleanDate,
+    addDays,
+    daysBetween,
+    mondayOf,
+    stableIssues,
+    validateContract,
+    evaluate,
+    runtimeIssues,
+  };
+});
 </script></body></html>
 
 
