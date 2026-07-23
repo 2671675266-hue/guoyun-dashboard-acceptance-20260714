@@ -227,7 +227,7 @@ body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;backgr
     <div class="action-add"><input type="text" id="actInput" placeholder="输入行动项…"><input type="text" id="actProposer" placeholder="提出人" style="width:70px"><input type="text" id="actOwner" placeholder="负责人" style="width:70px"><select id="actStatus"><option value="wait">待执行</option><option value="doing">进行中</option><option value="done">已完成</option></select><input type="date" id="actDeadline" style="width:130px"><button class="add-btn" onclick="addAction()">+ 添加</button></div>
     <div style="overflow-x:auto"><table class="act-tbl" id="actTbl"><tbody><tr><th>行动项</th><th>提出人</th><th>负责人</th><th>状态</th><th>截止日期</th><th>操作</th></tr><tr><td colspan="6" style="text-align:center;color:#b3a890;padding:14px">还没有行动项，开会时在上方添加</td></tr></tbody></table></div>
   </div>
-  <div class="note" id="srcnote">数据来源：抖音电商罗盘 + 经营版商品列表（人工导出导入） + 千川API日报（投流模块） · 时间口径：周=完整自然周（可跨月）；月=自然月；跨月周会在相关两个月视图重复出现，但月总只计本月日期，因此月内周加总可不等于月总 · 业务口径：成交GMV(含平台补贴)，退款率=金额退货率(退款额÷成交GMV)·订单退货率(退款单÷成交单)，支付时间口径，净GMV=成交GMV−退款金额 · 素材身份口径（自营货架+自播视频；自播投流面霜/面膜互斥查看，无两账户合并视图；直播间画面直投不参与身份分母）：STAR+BY_VIDEO+VIDEO 唯一桥接=达人；未命中进入自制分组；平台标签只作最近一次素材导出快照校验，页面显式展示覆盖率/周期，冲突报警且不覆盖 STAR；SELF 不作为单条素材依据 · 触点=自营/合作×载体；千川API触点按账户名映射 · 已导入周期由中央数据运行时生成</div>
+  <div class="note" id="srcnote">数据来源与业务口径将在中央数据加载后显示。</div>
 </div>
 <div class="empty" id="emptyState" style="display: none;"><h2>还没有数据</h2><p>把完整批次从抖音罗盘 / 经营版导出的 xlsx 拖进上方虚线框，看板就会生成。<br>日明细进入纯自然月，完整周按周一至周日累积；跨月周会同时关联起始月和结束月。</p></div>
 <script>
@@ -439,7 +439,7 @@ function qcCopyIdentity(row,r){
     ['platform_snapshot_generated_at','平台标签快照生成时间'],['platform_snapshot_source_file','平台标签快照来源'],
     ['platform_snapshot_source_sha256','平台标签快照哈希'],
     ['matched_supplier_keyword','供应商关键词'],['matched_team_keyword','组名关键词'],
-    ['matched_suspicious_keyword','疑似达人关键词'],['title_style','标题风格'],['content_title_signal_score','内容标题信号分'],['alert_types','报警类型']
+    ['matched_suspicious_keyword','疑似达人关键词'],['title_style','标题风格'],['content_title_signal_score','内容标题信号分'],['material_name_date','素材名称日期'],['category_rule_id','分类规则ID'],['account_source_role','账户来源角色'],['alert_types','报警类型']
   ];
   fields.forEach(function(pair){var v=cleanApiText(r[pair[0]]);if(v)row[pair[1]]=v;});
   var hv=r&&r.has_alert,hs=String(hv==null?'':hv).trim();
@@ -467,7 +467,7 @@ function buildTouliu(b,D){
   var videoCost=0,aigcCost=0,vmap={};
   metricRows(b.video).forEach(function(r){
     var c=tlnum(r['整体消耗']),nm=S(r['素材视频名称']).replace(/\s+/g,' ').trim();
-    var id=S(r['素材ID'])||nm||'未识别素材',aigc=isAigc(nm);
+    var id=S(r['素材ID'])||nm||'未识别素材',rowIdentity=S(r['身份']),aigc=rowIdentity?rowIdentity==='AI素材':((S(r['素材ID'])==='-'&&S(r['素材创建时间'])==='-')||nm==='AIGC动态创意视频素材集合');
     if(c>0){if(aigc)aigcCost+=c;else videoCost+=c;}
     if(!vmap[id])vmap[id]={id:id,n:nm,cost:0,gmv:0,exp:0,click:0,ord:0,s30:0,snet:0,fw:0,pw:0,pc:0,rowCount:0,s30CoveredRows:0,isAigc:false,firstLayerIdentity:'',identity:'',evidenceLevel:'',classificationBasis:'',bridgeStatus:'',bridgeMethod:'',platformLabel:'',materialSource:'',platformSnapshotGeneratedAt:'',platformSnapshotSourceFile:'',platformSnapshotSourceSha256:'',alertTypes:[],identityMismatchFields:[],hasIdentityLayer:false,accountStats:{}};
     var v=vmap[id];if(!v.n&&nm)v.n=nm;v.isAigc=v.isAigc||aigc;v.rowCount++;var aid=S(r['广告账户ID']).trim(),ast=null;if(aid){ast=v.accountStats[aid]||(v.accountStats[aid]={cost:0,gmv:0,ord:0,s30:0,exp:0,click:0,rowCount:0,s30CoveredRows:0,s30Coverage:0});ast.cost+=c;ast.gmv+=tlnum(r['整体成交金额']);ast.ord+=tlnum(r['整体成交订单数']);ast.s30+=tlnum(r['30日结算金额']);ast.exp+=tlnum(r['整体展示次数']);ast.click+=tlnum(r['整体点击次数']);ast.rowCount++;}
@@ -497,13 +497,13 @@ function buildTouliu(b,D){
       else addVAlert(v,'identity_alert');
     }
   });
-  var allowedIdentity={'达人':1,'外部':1,'一组':1,'二组':1,'待归组':1};
+  var allowedIdentity={'达人素材':1,'AI素材':1,'自制1组':1,'自制2组':1,'待确认':1};
   var videos=Object.keys(vmap).map(function(k){
     var v=vmap[k];
     if(!v.hasIdentityLayer)addVAlert(v,'identity_dimension_missing');
-    if(!allowedIdentity[v.identity]){if(v.identity)addVAlert(v,'identity_value_invalid');v.identity='待归组';}
-    if(!v.firstLayerIdentity)v.firstLayerIdentity=v.hasIdentityLayer?(v.identity==='达人'?'达人':'自制'):'待核';
-    if((v.firstLayerIdentity==='达人')!==(v.identity==='达人'))addVAlert(v,'identity_dimension_mismatch');
+    if(!allowedIdentity[v.identity]){if(v.identity)addVAlert(v,'identity_value_invalid');v.identity='待确认';}
+    if(!v.firstLayerIdentity)v.firstLayerIdentity=v.hasIdentityLayer?(v.identity==='达人素材'?'达人':(v.identity==='AI素材'?'AI':(v.identity==='待确认'?'待确认':'自制'))):'待确认';
+    if((v.firstLayerIdentity==='达人')!==(v.identity==='达人素材'))addVAlert(v,'identity_dimension_mismatch');
     if(!v.evidenceLevel)v.evidenceLevel='规则推断';
     if(!v.classificationBasis)v.classificationBasis=v.hasIdentityLayer?'未提供判定依据':'身份层字段缺失，待重新同步';Object.keys(v.accountStats).forEach(function(aid){var a=v.accountStats[aid];a.s30Coverage=a.rowCount?a.s30CoveredRows/a.rowCount:0;});
     return {id:v.id,n:v.n||v.id,cost:v.cost,gmv:v.gmv,ord:v.ord,s30:v.s30,payRoi:v.cost?v.gmv/v.cost:0,roi30:v.cost?v.s30/v.cost:0,finish:v.cost?v.fw/v.cost:0,p3:v.pc?v.pw/v.pc:null,ctr:v.exp?v.click/v.exp*100:0,cvr:v.click?v.ord/v.click*100:0,netRoi:v.cost?v.snet/v.cost:0,rowCount:v.rowCount,s30CoveredRows:v.s30CoveredRows,s30Coverage:v.rowCount?v.s30CoveredRows/v.rowCount:0,isAigc:v.isAigc,firstLayerIdentity:v.firstLayerIdentity,identity:v.identity,evidenceLevel:v.evidenceLevel,classificationBasis:v.classificationBasis,bridgeStatus:v.bridgeStatus,bridgeMethod:v.bridgeMethod,platformLabel:v.platformLabel,materialSource:v.materialSource,platformSnapshotGeneratedAt:v.platformSnapshotGeneratedAt,platformSnapshotSourceFile:v.platformSnapshotSourceFile,platformSnapshotSourceSha256:v.platformSnapshotSourceSha256,hasAlert:v.alertTypes.length>0,alertTypes:v.alertTypes,identityMismatchFields:v.identityMismatchFields,accountStats:v.accountStats};
@@ -525,7 +525,7 @@ function detectKey(sheets){
 /* 只保留需要的sheet和列，压缩体积 */
 var KEEP_SHEETS=['成交概览','自营成交','合作成交','账号构成'];
 var KEEP_COLS={'日期':1,'投放时段':1,'载体类型':1,'成交金额':1,'净成交金额':1,'退款金额(支付时间)':1,'退款订单数(支付时间)':1,'退款率(支付时间)':1,'成交订单数':1,'成交人数':1,'客单价':1,'成交件数':1,'用户支付金额':1,'平台补贴金额':1,'商品曝光次数':1,'商品点击次数':1,'商品曝光-点击转化率(次数)':1,'商品点击-成交转化率(次数)':1,'千次曝光用户支付金额':1,'账号名称':1,'账号类型':1,'自营/合作':1,'商品名称':1,'商品编码':1,'商品ID':1,'成交退款金额':1,'自卖/合作':1,'载体':1,'统计周期':1,'素材ID':1,'素材视频名称':1,'素材创建时间':1,'图片名称':1,'整体消耗':1,'整体成交金额':1,'整体成交订单数':1,'整体支付ROI':1,'整体展示次数':1,'整体点击次数':1,'30日结算金额':1,'7日结算金额':1,'14日结算金额':1,'视频完播率':1,'3秒播放率':1,'抖音号名称':1,'抖音号ID':1};
-['广告账户ID','广告账户名称','30日结算已返回','身份一级','身份','证据级别','判定依据','桥接状态','桥接方式','授权命中数','命中aweme_item_id','授权状态','平台标签','素材来源','平台标签快照生成时间','平台标签快照来源','平台标签快照哈希','供应商关键词','组名关键词','疑似达人关键词','标题风格','内容标题信号分','身份报警','报警类型'].forEach(function(k){KEEP_COLS[k]=1;});
+['广告账户ID','广告账户名称','30日结算已返回','身份一级','身份','证据级别','判定依据','桥接状态','桥接方式','授权命中数','命中aweme_item_id','授权状态','平台标签','素材来源','平台标签快照生成时间','平台标签快照来源','平台标签快照哈希','供应商关键词','组名关键词','疑似达人关键词','标题风格','内容标题信号分','素材名称日期','分类规则ID','账户来源角色','身份报警','报警类型'].forEach(function(k){KEEP_COLS[k]=1;});
 function trimRows(rows){return (rows||[]).map(function(r){var o={};for(var k in r){if(KEEP_COLS[k])o[k]=r[k];}return o;});}
 function trim(sheets){
   if(KEEP_SHEETS.some(function(k){return sheets[k];})){var o={};KEEP_SHEETS.forEach(function(k){if(sheets[k])o[k]=trimRows(sheets[k]);});return o;}
@@ -540,7 +540,7 @@ var COL={zibo:'#2f6fd6',dabo:'#8e44ad',zy_shelf:'#2e8b57',dy_short:'#d97706'};
 var DEF={zibo:400000,dabo:170000,zy_shelf:70000,dy_short:50000};
 var TGT_KEY='gy_tgts_v1';function loadTgts(){try{var o=JSON.parse(localStorage.getItem(TGT_KEY));return (o&&typeof o==='object')?o:{};}catch(e){return {};}}var tgtsAll=loadTgts();function saveTgts(){try{localStorage.setItem(TGT_KEY,JSON.stringify(tgtsAll));}catch(e){}}function monthTgts(mo){mo=(mo&&mo!=='all'&&/^\d{6}$/.test(mo))?mo:'202606';if(!tgtsAll[mo])tgtsAll[mo]=Object.assign({},DEF);return tgtsAll[mo];}var tgtEditMonth=null;function setTgtMonth(mo){tgtEditMonth=mo;buildTgt();}
 var per='all',ch='all',accTab='zy',tgts=Object.assign({},DEF),role='boss',curMonth=null,curRoom=null,customRange={start:'',end:''};var liveHostSort={k:'gmv',dir:-1};function liveSortHosts(k){if(liveHostSort.k===k)liveHostSort.dir*=-1;else liveHostSort={k:k,dir:(k==='host'?1:-1)};renderLive();}var liveMxMetric='avg';function liveSetMx(m){liveMxMetric=m;renderLive();}var liveMxSort={k:'total',dir:-1};function liveMxSortBy(k){if(liveMxSort.k===k)liveMxSort.dir*=-1;else liveMxSort={k:k,dir:-1};renderLive();}var liveSesSort={k:'date',dir:-1};function liveSesSortBy(k){if(liveSesSort.k===k)liveSesSort.dir*=-1;else liveSesSort={k:k,dir:(k==='host'||k==='kong'?1:-1)};renderLive();}var danmuSel={kind:'',key:'',sub:''};function dmSel(kind,key){if(danmuSel.kind===kind&&danmuSel.key===key){danmuSel={kind:'',key:'',sub:''};}else{danmuSel={kind:kind,key:key,sub:''};}renderLive();}function dmSelSub(x){danmuSel.sub=(danmuSel.sub===x?'':x);renderLive();}
-var tlSV={k:'cost',d:-1},tlSP={k:'cost',d:-1},tlSC={k:'cost',d:-1},tlSD={k:'cost',d:-1},tlIdentityFilterByChan={zy_shelf:'all',zibo:'all'},tlSelfLiveAccount='cream';
+var tlSV={k:'cost',d:-1},tlSP={k:'cost',d:-1},tlSC={k:'cost',d:-1},tlSD={k:'cost',d:-1},tlIdentityFilterByChan={zy_shelf:'all',zibo:'all',dy_short:'all'},tlSelfLiveAccount='cream';
 function selfLivePlatformValidationHtml(p,slot){p=p||{};var provided=p.provided===true;function hasNum(v){return typeof v==='number'&&isFinite(v);}function coverage(hit,total,ratio){if(!hasNum(ratio))return '未提供';var pct=(ratio*100).toFixed(1)+'%';return hasNum(hit)&&hasNum(total)?(hit+'/'+total+'（'+pct+'）'):pct;}var start=p.sourceStart?String(p.sourceStart):'',end=p.sourceEnd?String(p.sourceEnd):'',windowText=start&&end?(start+'～'+end):('起 '+(start||'未提供')+' / 止 '+(end||'未提供')),lag=hasNum(p.snapshotLagDays)?(p.snapshotLagDays+'天'):'未知',freshness=p.freshness?String(p.freshness):'未知',status=p.status?String(p.status):'未知',title='本批两自播账户 / 全局批次平台身份校验';return '<div id="selfLivePlatformValidation-'+escHtml(slot)+'" data-platform-validation-state="'+(provided?'provided':'missing')+'" style="margin:8px 0;padding:9px 11px;border:1px solid '+(provided?'#d9e3f2':'#ead49b')+';background:'+(provided?'#f7faff':'#fff8e8')+';border-radius:7px;font-size:11px;line-height:1.75;color:#5f594f"><b>'+escHtml(title)+'</b> · 身份标签覆盖 '+coverage(p.identityLabelMatched,p.currentMaterials,p.identityLabelCoverage)+' · 元数据覆盖 '+coverage(p.metadataMatched,p.currentMaterials,p.metadataCoverage)+'<br>快照 '+escHtml(windowText)+' · 滞后 '+escHtml(lag)+' · freshness '+escHtml(freshness)+' · status '+escHtml(status)+(provided?'':'<br><span style="color:#8a6500">⚠ platform_validation 未提供；覆盖率不得按 0% 解读。</span>')+'</div>';}
 var D=null;
 var ROLES=[{id:'boss',label:'📊 全域销售',short:'销售'},{id:'ops',label:'🛒 电商',short:'电商'},{id:'ad',label:'💰 投流',short:'投流'},{id:'content',label:'📝 内容策略',short:'内容'}];
@@ -972,7 +972,7 @@ function renderTouliu(){
   h+='<div class="tlk" style="margin-bottom:6px">📉 ROI 结算衰减（退款侵蚀）—— 别看投放，看结算</div><div style="display:flex;gap:5px;margin-bottom:12px">';
   steps.forEach(function(st,i){h+=(i?'<div style="align-self:center;color:#ddd0b6">›</div>':'')+'<div style="flex:1;text-align:center;background:#ffffff;border:1px solid #ece2cf;border-radius:7px;padding:8px 2px"><div class="tls">'+st[0]+'结算</div><div style="font-size:17px;font-weight:700;color:'+roiColor(st[1])+'">'+fmtRoi(st[1])+'</div></div>';});
   h+='</div>';
-  if(chan==='zy_shelf'||chan==='zibo'){
+  if(chan==='zy_shelf'||chan==='zibo'||chan==='dy_short'){
     var identityVideos=t.videos||[];
     if(chan==='zibo')h+=selfLivePlatformValidationHtml(t.platformValidation,'touliu-overview');
     if(chan==='zibo'&&(t.videoReturnState==='partial'||!identityVideos.length))h+='<div id="selfLiveVideoReturnState" data-self-live-video-state="'+escHtml(t.videoReturnState||'missing')+'" style="margin:8px 0;padding:9px 11px;border:1px solid '+(t.videoReturnState==='returned_zero'?'#cfe2d6':'#ead49b')+';background:'+(t.videoReturnState==='returned_zero'?'#f7fcf8':'#fff8e8')+';border-radius:7px;font-size:11px;color:'+(t.videoReturnState==='returned_zero'?'#2e8b57':'#8a6500')+'">'+(t.videoReturnState==='returned_zero'?'✓ 视频素材日报已成功返回 0 条；本期为全直投，不生成素材身份行。':(t.videoReturnState==='partial'?'⚠ 视频素材日报仅部分账户返回；当前素材合计不可当全量。':'⚠ 视频素材日报未返回或调用证据不完整；不能据此判断本期没有视频素材。'))+'</div>';
@@ -990,15 +990,18 @@ function renderTouliu(){
         +'<div class="tl-id-metric"><span>30日 ROI</span><b>'+idRoi30(stat)+'</b><span>'+(cov===100?'覆盖完整':(cov?('仅 '+cov+'% 行返回'):'未返回'))+'</span></div>'
         +'</div></div>';
     }
-    var identityTotal=idStat(identityVideos),selfStat=idStat(identityVideos.filter(function(v){return v.firstLayerIdentity==='自制';})),creatorStat=idStat(identityVideos.filter(function(v){return v.firstLayerIdentity==='达人';})),unknownIdentity=identityVideos.filter(function(v){return v.firstLayerIdentity!=='自制'&&v.firstLayerIdentity!=='达人';});
+    var identityTotal=idStat(identityVideos),creatorStat=idStat(identityVideos.filter(function(v){return v.identity==='达人素材';})),aiStat=idStat(identityVideos.filter(function(v){return v.identity==='AI素材';})),team1Stat=idStat(identityVideos.filter(function(v){return v.identity==='自制1组';})),team2Stat=idStat(identityVideos.filter(function(v){return v.identity==='自制2组';})),pendingStat=idStat(identityVideos.filter(function(v){return v.identity==='待确认';}));
     var platformMetadataCovered=identityVideos.filter(function(v){return !!(v.platformLabel||v.materialSource);}).length,platformCovered=identityVideos.filter(function(v){return /自制|达人/.test(v.platformLabel||'');}).length,platformSource=(identityVideos.filter(function(v){return !!v.platformSnapshotSourceFile;})[0]||{}).platformSnapshotSourceFile||'',platformRange='未提供';
     var platformRangeMatch=platformSource.match(/(\d{4}-\d{2}-\d{2}).*?(\d{4}-\d{2}-\d{2})/);if(platformRangeMatch)platformRange=platformRangeMatch[1]+'～'+platformRangeMatch[2];else{var platformGenerated=(identityVideos.filter(function(v){return !!v.platformSnapshotGeneratedAt;})[0]||{}).platformSnapshotGeneratedAt||'';if(platformGenerated)platformRange=platformGenerated.slice(0,10);}
-    h+='<section class="tl-id-overview" id="tlIdentityOverview"><div class="tl-id-overview-head"><div class="tlk" style="font-weight:700;color:#5a503e">🧬 视频素材身份总观 · 自制 vs 达人</div><div class="tl-id-overview-note">仅视频素材归因口径，含 0 消耗素材与 AIGC；成交不与商品/账户层混算<br>四个归属档加总=“全部”；外部来源素材已并入一组；平台标签仅校验，不覆盖 STAR 硬证据</div></div><div class="tl-id-compare">'
-      +idOverviewCard('自制内容','self','#2f6fd6',selfStat,identityTotal)
-      +idOverviewCard('达人授权','creator','#d97706',creatorStat,identityTotal)
+    h+='<section class="tl-id-overview" id="tlIdentityOverview"><div class="tl-id-overview-head"><div class="tlk" style="font-weight:700;color:#5a503e">🧬 视频素材身份总观 · 五档统一口径</div><div class="tl-id-overview-note">仅视频素材归因口径；直播间画面单独列示，不进入视频素材分母；成交不与商品/账户层混算<br>达人素材、AI素材、自制1组、自制2组、待确认五档加总=“全部”，“全部”不重复相加</div></div><div class="tl-id-compare">'
+      +idOverviewCard('达人素材','creator','#d97706',creatorStat,identityTotal)
+      +idOverviewCard('AI素材','ai','#6b7280',aiStat,identityTotal)
+      +idOverviewCard('自制1组（波波）','team1','#2f6fd6',team1Stat,identityTotal)
+      +idOverviewCard('自制2组','team2','#7c3aed',team2Stat,identityTotal)
+      +idOverviewCard('待确认','pending','#b07d12',pendingStat,identityTotal)
       +'</div>'
-      +'<div class="tl-id-snapshot">平台身份标签校验：'+platformCovered+'/'+identityVideos.length+' 条；来源/标签元数据：'+platformMetadataCovered+'/'+identityVideos.length+' 条 · 快照周期 '+escHtml(platformRange)+(platformCovered<identityVideos.length?' · 未覆盖素材仍按 STAR 规则判断，不冒充已完成平台校验':'')+'</div>'
-      +(unknownIdentity.length?'<div class="tl-id-warning">⚠ 有 '+unknownIdentity.length+' 条素材缺少可核验的第一层身份，未计入上方两类占比；请重新同步身份层。</div>':'')
+      +'<div class="tl-id-snapshot">平台身份标签校验：'+platformCovered+'/'+identityVideos.length+' 条；来源/标签元数据：'+platformMetadataCovered+'/'+identityVideos.length+' 条 · 快照周期 '+escHtml(platformRange)+(platformCovered<identityVideos.length?' · 未覆盖平台标签不等于缺少身份；仍按统一账户来源/标题规则判定':'')+'</div>'
+      +(pendingStat.count?'<div class="tl-id-warning">⚠ 有 '+pendingStat.count+' 条素材标题为空或暂时无法识别，已明确归入“待确认”，且计入五档总分母。</div>':'')
       +'</section>';
   }
   function pdiag(p){if(p.roi30<1){if(p.cvr<2.5)return ['转化+退款双弱','#c0392b'];return ['退款拖累','#b07d12'];}if(p.ctr<4.5)return ['流量偏弱·靠转化撑','#b07d12'];return ['健康','#2e8b57'];}
@@ -1026,18 +1029,18 @@ function renderTouliu(){
   }else{
     h+='<div class="tlk" style="margin:12px 0 6px">📐 推商品户 · 素材类型消耗</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px"><div class="inv-kpi-cell"><div class="tlk">📹 视频（可追投）</div><div class="tlv">'+fmtM(t.videoCost)+'</div><div class="tls">'+(t.cost?Math.round(t.videoCost/t.cost*100):0)+'% 占消耗</div></div><div class="inv-kpi-cell"><div class="tlk">🛒 商品卡（不可追投）</div><div class="tlv">'+fmtM(t.carCost)+'</div><div class="tls">'+(t.cost?Math.round(t.carCost/t.cost*100):0)+'% 占消耗</div></div><div class="inv-kpi-cell"><div class="tlk">🤖 AIGC（不可追投）</div><div class="tlv">'+fmtM(t.aigcCost)+'</div><div class="tls">'+(t.cost?Math.round(t.aigcCost/t.cost*100):0)+'% 占消耗</div></div></div>';
   }
-  if(chan==='zy_shelf'||chan==='zibo'){
-    var identityOrder=[['all','全部'],['达人','达人'],['一组','一组'],['二组','二组'],['待归组','待归组']];
+  if(chan==='zy_shelf'||chan==='zibo'||chan==='dy_short'){
+    var identityOrder=[['all','全部'],['达人素材','达人素材'],['AI素材','AI素材'],['自制1组','自制1组（波波）'],['自制2组','自制2组'],['待确认','待确认']];
     var tlIdentityFilter=tlIdentityFilterByChan[chan]||'all';
     if(chan==='zibo')h+=selfLivePlatformValidationHtml(t.platformValidation,'touliu-detail');
     if(!identityOrder.some(function(x){return x[0]===tlIdentityFilter;})){tlIdentityFilter='all';tlIdentityFilterByChan[chan]='all';}
     function idMoney(v){return '¥'+(+v||0).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});}
     function idRows(key){return key==='all'?sortedVideos:sortedVideos.filter(function(v){return v.identity===key;});}
     function idBucket(key){return idRows(key).reduce(function(o,v){o.count++;o.cost+=v.cost;return o;},{count:0,cost:0});}
-    function idBadgeCls(v){return v==='达人'?'creator':v==='外部'?'external':v==='一组'?'team1':v==='二组'?'team2':'pending';}
+    function idBadgeCls(v){return v==='达人素材'?'creator':v==='AI素材'?'external':v==='自制1组'?'team1':v==='自制2组'?'team2':'pending';}
     function v30Text(v){if(!v.rowCount||!v.s30CoveredRows)return '—（未返回）';if(v.s30CoveredRows<v.rowCount)return '—（覆盖 '+Math.round(v.s30Coverage*100)+'%）';return v.cost?fmtRoi(v.roi30):'—（0消耗）';}
     var filterRows=idRows(tlIdentityFilter),filterBucket=idBucket(tlIdentityFilter);
-    h+='<div class="tlk" style="margin:12px 0 4px">🎬 视频素材身份明细 <span style="color:#b3a890;margin-left:8px">全量唯一 ID，含 0 消耗与 AIGC；“全部”不参与四归属档相加</span></div>';
+    h+='<div class="tlk" style="margin:12px 0 4px">🎬 视频素材身份明细 <span style="color:#b3a890;margin-left:8px">全量唯一 ID，含 0 消耗与 AIGC；“全部”不与五档重复相加</span></div>';
     h+='<div class="tl-id-filter-row" id="tlIdentityFilters">'+identityOrder.map(function(x){var b=idBucket(x[0]);return '<button type="button" class="tl-id-filter '+(tlIdentityFilter===x[0]?'on':'')+'" data-tl-filter="'+escHtml(x[0])+'" onclick="setTlIdentityFilter(\''+x[0]+'\',\''+chan+'\')">'+x[1]+'<small>'+b.count+' 条 · '+idMoney(b.cost)+'</small></button>';}).join('')+'</div>';
     h+='<div class="tl-id-summary" id="tlIdentityFilterSummary">当前：'+identityOrder.filter(function(x){return x[0]===tlIdentityFilter;})[0][1]+' · '+filterBucket.count+' 条素材 · 消耗 '+idMoney(filterBucket.cost)+'</div>';
     h+='<div class="tl-id-table-wrap" id="tlIdentityTableWrap"><table class="inv-tbl" id="tlIdentityTable"><thead><tr><th>素材名称</th><th>素材ID</th><th>身份</th><th>证据</th><th onclick="tlSortV(\'cost\')" style="cursor:pointer">消耗'+arV('cost')+'</th><th>成交</th><th onclick="tlSortV(\'days\')" style="cursor:pointer">上线\u2192跑出'+arV('days')+'</th><th onclick="tlSortV(\'p3\')" style="cursor:pointer">3秒'+arV('p3')+'</th><th onclick="tlSortV(\'finish\')" style="cursor:pointer">完播'+arV('finish')+'</th><th onclick="tlSortV(\'ctr\')" style="cursor:pointer">CTR'+arV('ctr')+'</th><th onclick="tlSortV(\'cvr\')" style="cursor:pointer">转化率'+arV('cvr')+'</th><th onclick="tlSortV(\'payRoi\')" style="cursor:pointer">支付ROI'+arV('payRoi')+'</th><th onclick="tlSortV(\'roi30\')" style="cursor:pointer">30日ROI'+arV('roi30')+'</th><th>阶段</th><th>诊断</th></tr></thead><tbody>';
@@ -1096,7 +1099,7 @@ function render(){
   document.getElementById('cg').innerHTML=['all'].concat(CH).map(function(c){return '<button class="btn '+(c===ch?'on':'')+'" onclick="setC(\''+c+'\')">'+NAME[c]+'</button>';}).join('');
   var activePeriod=D.periods[per]||{};document.getElementById('sub').textContent=(activePeriod.range||'')+(activePeriod.crossMonth?' · 跨月完整自然周':'')+' · 触点：'+(NAME[ch].replace(/[^一-龥]/g,'')||'全部')+' · 视图：'+(ROLES.find(function(r){return r.id===role;})||{}).short;
   var src='抖音电商罗盘成交日明细 + 商品自然日明细 + 退款分析支付日事实'+(D._qcApi?' + 千川API日报（投流模块）':'');
-  document.getElementById('srcnote').textContent='数据来源：'+src+' · 时间口径：周=完整自然周（可跨月）；月=自然月；商品成交按日累积，历史聚合快照仅作切换日前兜底 · 退款口径：退款分析表为唯一权威源，每天按订单支付日覆盖历史，净GMV=成交GMV−退款金额；商品退款按支付日+商品ID+售卖类型+原始载体严格取交集 · 素材身份口径（自营货架+自播视频；自播投流面霜/面膜互斥查看，无两账户合并视图；直播间画面直投不参与身份分母）：STAR+BY_VIDEO+VIDEO 唯一桥接=达人；未命中进入自制分组；平台标签只作最近一次素材导出快照校验，身份总观显式展示覆盖率/周期，冲突报警且不覆盖 STAR；SELF 不作为单条素材依据 · 已导入：'+((D.months||[]).map(function(m){var pids=m.weekPeriods||m.weeks.map(function(w){return m.key+'_'+w;});return m.label+'('+pids.map(function(pid){return periodLabel(pid)+(isCrossMonthWeek(pid)?'[跨月]':'');}).join('+')+')';}).join(' / ')||'无');
+  document.getElementById('srcnote').textContent='数据来源：'+src+' · 时间口径：周=完整自然周（可跨月）；月=自然月；商品成交按日累积，历史聚合快照仅作切换日前兜底 · 退款口径：退款分析表为唯一权威源，每天按订单支付日覆盖历史，净GMV=成交GMV−退款金额；商品退款按支付日+商品ID+售卖类型+原始载体严格取交集 · 素材身份口径（自营货架+自播视频+达人短视频；自播投流面霜/面膜互斥查看，无两账户合并视图；直播间画面单独列示且不参与视频素材分母）：推商品达人户按账户来源全部归达人素材；其余素材中，ID和创建时间均为“-”或平台标题为“AIGC动态创意视频素材集合”归AI素材；普通 .mp4 中名称含马溶/马蓉且名称日期晚于2026-07-10归自制2组（07-10不算），其余归自制1组（波波）；其他正常内容标题归达人素材；空标题或无法识别归待确认；素材名称出现AI/AIGC、达人姓名或“达人拼自制/多达人混剪”等字样不改变普通 .mp4 的自制归类；STAR/平台标签只作审计旁证，不覆盖上述优先级；千川API触点按配置中的 advertiser_id/account_touchpoints 显式映射，禁止按账户名猜测 · 已导入：'+((D.months||[]).map(function(m){var pids=m.weekPeriods||m.weeks.map(function(w){return m.key+'_'+w;});return m.label+'('+pids.map(function(pid){return periodLabel(pid)+(isCrossMonthWeek(pid)?'[跨月]':'');}).join('+')+')';}).join(' / ')||'无');
   renderKPI();renderMonthGoals();renderFunnel();renderGA();renderConclCards();renderTrend();renderAnom();renderMtx();renderAcc();renderPrd();renderTouliu();renderTLSum();renderDataCheck();renderLive();renderRefund();renderActions();
   applyRoleVisibility();
 }
@@ -1106,7 +1109,7 @@ function tlSortV(k){if(tlSV.k===k)tlSV.d=-tlSV.d;else{tlSV.k=k;tlSV.d=-1;}render
 function tlSortP(k){if(tlSP.k===k)tlSP.d=-tlSP.d;else{tlSP.k=k;tlSP.d=-1;}render();}
 function tlSortC(k){if(tlSC.k===k)tlSC.d=-tlSC.d;else{tlSC.k=k;tlSC.d=-1;}render();}
 function tlSortD(k){if(tlSD.k===k)tlSD.d=-tlSD.d;else{tlSD.k=k;tlSD.d=-1;}render();}
-function setTlIdentityFilter(v,identityChan){var ok={all:1,'达人':1,'外部':1,'一组':1,'二组':1,'待归组':1},c=(identityChan==='zibo'||identityChan==='zy_shelf')?identityChan:(ch==='zibo'?'zibo':'zy_shelf');tlIdentityFilterByChan[c]=ok[v]?v:'all';renderTouliu();}
+function setTlIdentityFilter(v,identityChan){var ok={all:1,'达人素材':1,'AI素材':1,'自制1组':1,'自制2组':1,'待确认':1},c=(identityChan==='zibo'||identityChan==='zy_shelf'||identityChan==='dy_short')?identityChan:(ch==='zibo'?'zibo':(ch==='dy_short'?'dy_short':'zy_shelf'));tlIdentityFilterByChan[c]=ok[v]?v:'all';renderTouliu();}
 function setTlSelfLiveAccount(v){if(v!=='cream'&&v!=='mask')return;tlSelfLiveAccount=v;tlIdentityFilterByChan.zibo='all';renderTouliu();}
 function setC(c){ch=c;if(c==='dabo'||c==='dy_short')accTab='hz';else if(c==='zibo'||c==='zy_shelf')accTab='zy';render();}
 
@@ -1564,7 +1567,7 @@ buildTgt();renderActions();
   const REQUIRED_PRODUCT_NUMERIC_FIELDS = ["成交金额", "成交订单数"];
   const REQUIRED_LUOPAN_SHEETS = ["成交概览", "自营成交", "合作成交", "账号构成"];
   const SUPPORTED_CONTRACT_SCHEMA = "gy-data-completeness-contract-v1";
-  const SUPPORTED_CONTRACT_VERSION = "2026-07-21.3";
+  const SUPPORTED_CONTRACT_VERSION = "2026-07-23.1";
   const LOCKED_PRODUCT_COMBINATIONS = [
     ["自卖", "直播", "自播"],
     ["自卖", "短视频", "自营货架"],
@@ -1592,7 +1595,7 @@ buildTgt();renderActions();
       channel: "dy_short",
       accounts: ["1841581403523785", "1863165213655306"],
       sourceSpecs: ["account_daily", "product_daily", "ad_daily", "material_video_daily", "material_image_daily"],
-      globalSpecs: ["daren_plan_identity"],
+      globalSpecs: ["daren_plan_identity", "material_identity_build"],
       requiredLayers: ["prod", "video", "daren"],
     },
   };
@@ -2502,7 +2505,7 @@ buildTgt();renderActions();
         contract_id: "platform.material.labels.coverage", date_or_period: state.target, domain: "素材身份校验", source: "千川素材库API",
         touchpoint: "自营货架+自播", layer: "平台标签层", item: "平台素材标签覆盖",
         required: false, severity: "warning",
-        reason: `同批素材 ${Number(snapshot.requested_material_count || 0)} 个，API命中 ${Number(snapshot.matched_material_count || snapshot.material_count || 0)} 个，未返回 ${unmatched} 个，身份标签冲突 ${conflicts} 个，未知来源枚举 ${unknownSources} 个；未返回项继续按STAR硬证据/标题规则判定，不用旧快照顶替`,
+        reason: `同批素材 ${Number(snapshot.requested_material_count || 0)} 个，API命中 ${Number(snapshot.matched_material_count || snapshot.material_count || 0)} 个，未返回 ${unmatched} 个，身份标签冲突 ${conflicts} 个，未知来源枚举 ${unknownSources} 个；未返回项继续按当前统一素材优先级判定，STAR/平台标签只作审计旁证且不覆盖归类，不用旧快照顶替`,
       });
     }
   }
